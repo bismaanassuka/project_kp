@@ -28,3 +28,15 @@ const secondaryText = TextStyle(
   fontWeight: FontWeight.w300,
   color: Colors.white,
 );
+
+const nameTransText = TextStyle(
+  fontSize: 14,
+  fontWeight: FontWeight.w800,
+  color: primaryColor,
+);
+
+const primaryText2 = TextStyle(
+  fontSize: 18,
+  fontWeight: FontWeight.w600,
+  color: primaryColor,
+);

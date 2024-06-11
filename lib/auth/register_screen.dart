@@ -14,6 +14,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  String _username = '';
   String _email = '';
   String _password = '';
   String _confPass = '';
@@ -71,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       onChanged: (value) {
                         setState(() {
-                          _email = value;
+                          _username = value;
                         });
                       },
                     ),

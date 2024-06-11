@@ -1,4 +1,5 @@
 import 'package:Webcare/auth/register_screen.dart';
+import 'package:Webcare/report/report_screen.dart';
 import 'package:Webcare/theme/text_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -103,7 +104,9 @@ class _LoginScreenState extends State<LoginScreen> {
             SizedBox(height: 210),
             CustomButton(
               buttonText: 'MASUK',
-              onPressed:(){}
+              onPressed:(){
+                navigateToScreen(context, ReportScreen());
+              }
             ),
                 SizedBox(height: 20),
                 Center(

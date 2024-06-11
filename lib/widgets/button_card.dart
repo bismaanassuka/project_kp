@@ -1,14 +1,15 @@
+import 'package:Webcare/report/detail_report.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/colors.dart';
 
-class CustomButton extends StatelessWidget {
+class ButtonCard extends StatelessWidget {
 
   final String buttonText;
   final VoidCallback onPressed;
 
-  const CustomButton({
+  const ButtonCard({
     super.key,
     required this.buttonText,
     required this.onPressed,
@@ -22,41 +23,45 @@ class CustomButton extends StatelessWidget {
           colors: [
             primaryColor,
             secondaryColor
-          ], // Sesuaikan dengan warna gradient yang diinginkan
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(
-            10), // Sesuaikan dengan border radius yang diinginkan
+        ), borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(10),
+        bottomRight: Radius.circular(10),
+      ),
       ),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DetailReport()),
+          );
+        },
         style: ElevatedButton.styleFrom(
           fixedSize: const Size(double.infinity, 50),
           backgroundColor:
-          Colors.transparent, // Warna button harus transparent
+          Colors.transparent,
           shadowColor: Colors
-              .transparent, // Untuk menghindari bayangan warna aslinya
+              .transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
           ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(width: 10),
-            Text(
-              buttonText,
+            Text('Lihat Detail',
               style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-                fontWeight: FontWeight.w600
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600
               ),
             ),
+            Icon(Icons.arrow_forward_ios,
+            color: Colors.white,size: 14,)
           ],
         ),
       ),
     );
   }
 }
-
