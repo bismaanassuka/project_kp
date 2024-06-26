@@ -7,6 +7,7 @@ import 'package:Webcare/transaction/add_transaction_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'auth/login_screen.dart';
+import 'auth/register_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: DetailReport(),
+      home: LoginScreen(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
       ),
