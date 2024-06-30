@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:Webcare/theme/colors.dart';
-
 import '../auth/profile_screen.dart';
 import '../report/report_screen.dart';
-import '../transaction/add_transaction_screen.dart';
+import '../auth/controller/login_controller.dart';
 
 class CustomNavbar extends StatelessWidget {
+  final LoginController loginController;
+
+  const CustomNavbar({Key? key, required this.loginController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
       color: tertiaryColor,
-      shape: CircularNotchedRectangle(),
+      shape: const CircularNotchedRectangle(),
       notchMargin: 25.0,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           _buildBottomNavigationItem(Icons.list_alt, 'Laporan', 0, context),
-          SizedBox(width: 48.0),
+          const SizedBox(width: 48.0),
           _buildBottomNavigationItem(Icons.person, 'Profil', 1, context),
         ],
       ),
@@ -30,12 +32,12 @@ class CustomNavbar extends StatelessWidget {
         if (index == 0) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ReportScreen()),
+            MaterialPageRoute(builder: (context) => ReportScreen(loginController: loginController)),
           );
         } else if (index == 1) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ProfileScreen()),
+            MaterialPageRoute(builder: (context) => ProfileScreen(loginController: loginController)), // tambahkan loginController di sini
           );
         }
       },
@@ -49,7 +51,7 @@ class CustomNavbar extends StatelessWidget {
           ),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: primaryColor,
             ),
           ),
@@ -62,22 +64,17 @@ class CustomNavbar extends StatelessWidget {
 class CustomFloatingActionButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  CustomFloatingActionButton({required this.onPressed});
+  const CustomFloatingActionButton({Key? key, required this.onPressed}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Transform.scale(
       scale: 1.5,
       child: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddTransScreen()),
-          );
-        },
-        child: Icon(Icons.add, color: Colors.white),
+        onPressed: onPressed,
         backgroundColor: primaryColor,
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

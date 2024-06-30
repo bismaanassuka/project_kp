@@ -1,13 +1,14 @@
-import 'package:Webcare/theme/colors.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../transaction/add_transaction_screen.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_navbar.dart';
+import 'controller/login_controller.dart';
+import 'package:Webcare/theme/colors.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final LoginController loginController;
+
+  const ProfileScreen({Key? key, required this.loginController}) : super(key: key);
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
@@ -75,17 +76,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         decoration: BoxDecoration(
                           color: tertiaryColor,
-                          borderRadius: BorderRadius.circular(
-                              10), // Sesuaikan dengan border radius yang diinginkan
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: ElevatedButton(
                           onPressed: () {},
                           style: ElevatedButton.styleFrom(
                             fixedSize: const Size(double.infinity, 50),
-                            backgroundColor: Colors
-                                .transparent, // Warna button harus transparent
-                            shadowColor: Colors
-                                .transparent, // Untuk menghindari bayangan warna aslinya
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -113,13 +111,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavbar(),
+      bottomNavigationBar: CustomNavbar(loginController: widget.loginController), // Sediakan loginController dari widget ini
       floatingActionButton: CustomFloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddTransScreen()),
-          );
+          Navigator.pushNamed(context, '/add_transaction');
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

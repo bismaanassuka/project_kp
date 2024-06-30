@@ -9,34 +9,30 @@ class RegisterController {
   late String email;
   late String password;
   bool isLoading = false;
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confpasswordController = TextEditingController();
 
   Future<void> submit(BuildContext context) async {
     if (formKey.currentState!.validate()) {
       isLoading = true;
 
-      // Log untuk validasi berhasil
       print('Form validated successfully');
 
-      // Buat instance Dio
       Dio dio = Dio();
-
-      // Data untuk dikirim ke server
       var data = {
-        "username": username,
-        "email": email,
-        "password": password,
+        "username": usernameController.text,
+        "email": emailController.text,
+        "password": passwordController.text,
       };
 
-      // Kirim POST request ke endpoint register
       try {
+        Dio dio = Dio();
+        isLoading = false;
         var response = await dio.post('http://192.168.43.88:8080/api/register', data: data);
 
-        isLoading = false;
-
-        // Handle response
-        print(response.data); // Tampilkan respons dari server jika diperlukan
-
-        // Navigasi ke LoginScreen setelah registrasi berhasil
+        print(response.data);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -46,12 +42,10 @@ class RegisterController {
       } catch (error) {
         isLoading = false;
 
-        // Handle error
-        print("Error: $error"); // Tampilkan pesan kesalahan jika ada
-        // Tampilkan pesan kesalahan ke pengguna jika diperlukan
+        print("Error: $error");
+
       }
     } else {
-      // Log untuk validasi gagal
       print('Form validation failed');
     }
   }

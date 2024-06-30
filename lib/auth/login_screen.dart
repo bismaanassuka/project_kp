@@ -4,15 +4,18 @@ import 'package:Webcare/auth/register_screen.dart'; // Sesuaikan dengan lokasi R
 import '../theme/colors.dart';
 import '../theme/text_theme.dart';
 import '../widgets/custom_button.dart';
-import 'controller/login_controller.dart'; // Sesuaikan dengan lokasi LoginController Anda
+import 'controller/login_controller.dart';
+
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final LoginController _controller = LoginController();
+  final LoginController _controller = LoginController(token: '');
   bool _isObscure = true; // Hide password
 
   @override
@@ -24,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("assets/images/bg_auth.png"),
                   fit: BoxFit.cover,
@@ -32,20 +35,21 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(30),
+              padding: const EdgeInsets.all(30),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 50),
-                  Text('Selamat Datang!', style: headingText),
-                  Text('Silahkan masuk untuk melanjutkan', style: primaryText),
-                  SizedBox(height: 200),
+                  const SizedBox(height: 50),
+                  const Text('Selamat Datang!', style: headingText),
+                  const Text('Silahkan masuk untuk melanjutkan', style: primaryText),
+                  const SizedBox(height: 200),
                   Form(
                     key: _controller.formKey,
                     child: Column(
                       children: [
                         TextFormField(
-                          decoration: InputDecoration(
+                          controller: _controller.emailController,
+                          decoration: const InputDecoration(
                             labelText: 'Email',
                             suffixIcon: Icon(Icons.mail),
                           ),
@@ -61,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                         ),
                         TextFormField(
+                          controller: _controller.passwordController,
                           decoration: InputDecoration(
                             labelText: 'Password',
                             suffixIcon: IconButton(
@@ -88,19 +93,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 210),
+                  const SizedBox(height: 210),
                   _controller.isLoading
-                      ? CircularProgressIndicator() // Show loading indicator
+                      ? const CircularProgressIndicator() // Show loading indicator
                       : CustomButton(
                     buttonText: 'MASUK',
-                    onPressed: () => _controller.login(context),
+                    onPressed: () {_controller.login(context);},
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Center(
                     child: RichText(
                       text: TextSpan(
                         children: [
-                          TextSpan(
+                          const TextSpan(
                             text: 'Belum memiliki akun? ',
                             style: TextStyle(
                               color: Colors.black54,
@@ -110,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           TextSpan(
                             text: 'Daftar',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: secondaryColor,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

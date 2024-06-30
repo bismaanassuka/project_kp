@@ -1,18 +1,15 @@
-import 'package:Webcare/report/detail_report.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../theme/colors.dart';
 
 class ButtonCard extends StatelessWidget {
-
   final String buttonText;
   final VoidCallback onPressed;
+  final dynamic loginController; // Deklarasikan loginController di sini
 
   const ButtonCard({
-    super.key,
     required this.buttonText,
     required this.onPressed,
+    required this.loginController, // Tambahkan loginController ke constructor
   });
 
   @override
@@ -22,43 +19,42 @@ class ButtonCard extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             primaryColor,
-            secondaryColor
+            secondaryColor,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-        ), borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(10),
-        bottomRight: Radius.circular(10),
-      ),
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(10),
+          bottomRight: Radius.circular(10),
+        ),
       ),
       child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => DetailReport()),
-          );
-        },
+        onPressed: onPressed, // Gunakan onPressed dari constructor
         style: ElevatedButton.styleFrom(
           fixedSize: const Size(double.infinity, 50),
-          backgroundColor:
-          Colors.transparent,
-          shadowColor: Colors
-              .transparent,
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Lihat Detail',
+            Text(
+              buttonText, // Gunakan buttonText dari constructor
               style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600
+                fontSize: 14,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            Icon(Icons.arrow_forward_ios,
-            color: Colors.white,size: 14,)
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 14,
+            )
           ],
         ),
       ),

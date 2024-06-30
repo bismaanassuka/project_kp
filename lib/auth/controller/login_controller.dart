@@ -4,28 +4,31 @@ import '../../model/user_model.dart';
 import '../../report/report_screen.dart';
 
 class LoginController {
+
+  String token;
+  LoginController({required this.token});
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  String? email; // Variabel untuk menyimpan email dari form
-  String? password; // Variabel untuk menyimpan password dari form
+  String? email;
+  String? password;
   bool isLoading = false;
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  late User _user;
 
   Future<void> login(BuildContext context) async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
 
       var data = {
-        "email": email,
-        "password": password,
+        "email": emailController.text,
+        "password": passwordController.text,
       };
 
       try {
         isLoading = true;
         Dio dio = Dio();
-
-        print("Sending data: $data");
-
         var response = await dio.post(
-          'https://3d2f-120-188-81-178.ngrok-free.app/api/login',
+          'https://d4f2-114-5-104-222.ngrok-free.app/api/login',
           data: data,
         );
 
@@ -35,21 +38,27 @@ class LoginController {
         isLoading = false;
 
         if (response.statusCode == 200) {
-          // Handle successful login
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Login successful")),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => ReportScreen()),
-          );
+          if (response.data != null && response.data is Map<String, dynamic>) {
+            _user = User.fromJson(response.data);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Login successful")),
+            );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReportScreen(loginController: this),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Invalid response format")),
+            );
+          }
         } else {
-          // Handle failed login
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Login failed")),
+            const SnackBar(content: Text("Login failed")),
           );
         }
-
       } catch (e) {
         isLoading = false;
         print("Error: $e");
@@ -59,4 +68,6 @@ class LoginController {
       }
     }
   }
+
+  User get user => _user;
 }

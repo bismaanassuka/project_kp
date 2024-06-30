@@ -1,10 +1,11 @@
-import 'package:Webcare/auth/login_screen.dart';
-import 'package:Webcare/report/report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:Webcare/auth/login_screen.dart';
+import 'package:Webcare/report/report_screen.dart';
+import 'package:Webcare/auth/controller/login_controller.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -13,23 +14,27 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    autoLogin();
     super.initState();
+    autoLogin();
   }
 
   Future<void> autoLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userToken = prefs.getString("user-token");
     if (userToken != null) {
+      // Initialize LoginController with token
+      LoginController loginController = LoginController(token: userToken);
       Future.delayed(Duration(seconds: 5), () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ReportScreen()));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ReportScreen(loginController: loginController)),
+        );
       });
-    }else{
-      Future.delayed(Duration(seconds: 5),()
-      {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => LoginScreen())
+    } else {
+      Future.delayed(Duration(seconds: 5), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       });
     }

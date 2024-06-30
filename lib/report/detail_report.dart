@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../theme/colors.dart';
 import '../theme/text_theme.dart';
-import '../transaction/add_transaction_screen.dart';
-import '../widgets/custom_chart.dart';
 import '../widgets/custom_navbar.dart';
 import '../widgets/custom_total_card.dart';
 import '../widgets/custom_transaction_card.dart';
+import '../widgets/indicator_widget.dart';
 
 class DetailReport extends StatelessWidget {
+  final dynamic loginController;
+  final String token;
+
+  const DetailReport({Key? key, required this.loginController, required this.token}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +45,8 @@ class DetailReport extends StatelessWidget {
                               style: TextStyle(color: Colors.white, fontSize: 20),
                             ),
                             SizedBox(height: 16),
-                            CircularChart(),
+                            // Replace CircularChart with your custom chart widget
+                            // CircularChart(),
                             SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -127,84 +131,14 @@ class DetailReport extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavbar(),
-      floatingActionButton: CustomFloatingActionButton(
+      bottomNavigationBar: CustomNavbar(loginController: loginController), // Pass loginController here
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Handle floating action button press here
-          // For example, navigate to AddTransScreen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddTransScreen()),
-          );
+          Navigator.pushNamed(context, '/add_transaction');
         },
+        child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-    );
-  }
-}
-
-class StatisticsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(16.0),
-            color: Colors.blueAccent,
-            child: Column(
-              children: [
-                Text(
-                  'Mei, 2024',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
-                ),
-                SizedBox(height: 16),
-                CircularChart(),
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IndicatorWidget(
-                      color: Colors.greenAccent,
-                      text: 'Pemasukan',
-                    ),
-                    SizedBox(width: 16),
-                    IndicatorWidget(
-                      color: Colors.redAccent,
-                      text: 'Pengeluaran',
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class IndicatorWidget extends StatelessWidget {
-  final Color color;
-  final String text;
-
-  IndicatorWidget({required this.color, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          color: color,
-        ),
-        SizedBox(width: 8),
-        Text(
-          text,
-          style: TextStyle(color: Colors.white),
-        ),
-      ],
     );
   }
 }

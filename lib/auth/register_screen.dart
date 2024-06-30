@@ -48,6 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       children: [
                         TextFormField(
+                          controller: _controller.usernameController,
                           decoration: InputDecoration(
                             labelText: 'Username',
                             suffixIcon: Icon(Icons.person),
@@ -65,6 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         TextFormField(
+                          controller: _controller.emailController,
                           decoration: InputDecoration(
                             labelText: 'Email',
                             suffixIcon: Icon(Icons.mail),
@@ -82,6 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         TextFormField(
+                          controller: _controller.passwordController,
                           decoration: InputDecoration(
                             labelText: 'Password',
                             suffixIcon: IconButton(
@@ -111,6 +114,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         TextFormField(
+                          controller: _controller.confpasswordController,
                           decoration: InputDecoration(
                             labelText: 'Konfirmasi Password',
                             suffixIcon: IconButton(
@@ -136,7 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                           onChanged: (value) {
-                            setState(() {});
+                            _controller.password = value;
                           },
                         ),
                       ],
@@ -147,7 +151,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ? CircularProgressIndicator()
                       : CustomButton(
                     buttonText: 'DAFTAR',
-                    onPressed: () => _controller.submit(context),
+                    onPressed: (){_controller.submit(context);},
                   ),
                   SizedBox(height: 20),
                   Center(

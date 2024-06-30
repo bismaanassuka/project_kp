@@ -1,21 +1,27 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Webcare/theme/colors.dart';
-import 'package:Webcare/theme/text_theme.dart';
+
+import '../auth/controller/login_controller.dart';
+import '../model/user_model.dart';
+import '../theme/colors.dart';
+import '../theme/text_theme.dart';
 import '../transaction/add_transaction_screen.dart';
 import '../widgets/custom_navbar.dart';
 import 'daily_report_screen.dart';
 import 'monthly_report_screen.dart';
 
-
 class ReportScreen extends StatefulWidget {
+  final LoginController loginController;
+
+  const ReportScreen({Key? key, required this.loginController}) : super(key: key);
+
   @override
   _ReportScreenState createState() => _ReportScreenState();
 }
 
 class _ReportScreenState extends State<ReportScreen> {
   int _selectedIndex = 0;
-  final TextStyle activeTextStyle = TextStyle(color: Colors.white);
-  final TextStyle inactiveTextStyle = TextStyle(color: primaryColor);
+  User? user; // Assume you have access to the logged-in user
 
   void _onButtonPressed(int index) {
     setState(() {
@@ -27,7 +33,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('LAPORAN', style: appBarText),
+        title: const Text('LAPORAN', style: appBarText),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -44,7 +50,7 @@ class _ReportScreenState extends State<ReportScreen> {
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      fixedSize: Size(160, 60),
+                      fixedSize: const Size(160, 60),
                       backgroundColor: _selectedIndex == 0 ? tertiaryColor : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -60,11 +66,10 @@ class _ReportScreenState extends State<ReportScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
-                  // Tombol Bulanan
+                  const SizedBox(width: 10),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      fixedSize: Size(160, 60),
+                      fixedSize: const Size(160, 60),
                       backgroundColor: _selectedIndex == 1 ? tertiaryColor : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -82,22 +87,27 @@ class _ReportScreenState extends State<ReportScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Expanded(
-                child: _selectedIndex == 0 ? DailyReportScreen() : MonthlyReportScreen(),
+                child: _selectedIndex == 0
+                    ? DailyReportScreen()
+                    : MonthlyReportScreen(user: user!), // Pass the user object here
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: CustomNavbar(),
+      bottomNavigationBar: CustomNavbar(loginController: widget.loginController),
       floatingActionButton: CustomFloatingActionButton(
         onPressed: () {
-          // Handle floating action button press here
-          // For example, navigate to AddTransScreen
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddTransScreen()),
+            MaterialPageRoute(
+              builder: (context) => AddTransScreen(),
+              settings: RouteSettings(
+                arguments: widget.loginController,
+              ),
+            ),
           );
         },
       ),

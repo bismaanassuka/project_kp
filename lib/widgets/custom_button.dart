@@ -30,7 +30,7 @@ class CustomButton extends StatelessWidget {
             10), // Sesuaikan dengan border radius yang diinginkan
       ),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           fixedSize: const Size(double.infinity, 50),
           backgroundColor:
