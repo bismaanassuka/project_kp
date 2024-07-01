@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final String? userToken = prefs.getString("user-token");
     if (userToken != null) {
       // Initialize LoginController with token
-      LoginController loginController = LoginController(token: userToken);
+      LoginController loginController = LoginController();
       Future.delayed(Duration(seconds: 5), () {
         Navigator.pushReplacement(
           context,

@@ -1,19 +1,21 @@
-import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../../model/user_model.dart';
 import '../../report/report_screen.dart';
 
 class LoginController {
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
+  User? _user;
 
-  String token;
-  LoginController({required this.token});
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   String? email;
   String? password;
   bool isLoading = false;
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  late User _user;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   Future<void> login(BuildContext context) async {
     if (formKey.currentState!.validate()) {
@@ -28,7 +30,7 @@ class LoginController {
         isLoading = true;
         Dio dio = Dio();
         var response = await dio.post(
-          'https://d4f2-114-5-104-222.ngrok-free.app/api/login',
+          'https://8a49-114-5-223-249.ngrok-free.app/api/login',
           data: data,
         );
 
@@ -40,6 +42,10 @@ class LoginController {
         if (response.statusCode == 200) {
           if (response.data != null && response.data is Map<String, dynamic>) {
             _user = User.fromJson(response.data);
+
+            // Simpan token ke secure storage
+            await _user?.saveToken(secureStorage);
+
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Login successful")),
             );
@@ -69,5 +75,5 @@ class LoginController {
     }
   }
 
-  User get user => _user;
+  User get user => _user!;
 }

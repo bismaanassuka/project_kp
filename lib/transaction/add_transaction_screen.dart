@@ -5,6 +5,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/custom_date_picker.dart';
 import 'controller/add_transaction_controller.dart';
 import '../auth/controller/login_controller.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AddTransScreen extends StatefulWidget {
   @override
@@ -20,6 +21,7 @@ class _AddTransScreenState extends State<AddTransScreen> {
   DateTime? _selectedDate;
 
   late AddTransactionController _controller;
+  final FlutterSecureStorage secureStorage = FlutterSecureStorage();
 
   @override
   void initState() {
@@ -31,7 +33,7 @@ class _AddTransScreenState extends State<AddTransScreen> {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as LoginController?;
     if (args != null) {
-      _controller = AddTransactionController(args.user!.userId.toString());
+      _controller = AddTransactionController(args.user.userId.toString(), secureStorage);
     } else {
       // Tangani kasus di mana argumen tidak ada
       // Misalnya, navigasikan kembali ke layar sebelumnya atau tampilkan pesan kesalahan
@@ -178,7 +180,7 @@ class _AddTransScreenState extends State<AddTransScreen> {
                         controller: TextEditingController(
                           text: _selectedDate == null
                               ? ''
-                              : '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                              : '${_selectedDate!.year}/${_selectedDate!.month}/${_selectedDate!.day}',
                         ),
                         validator: (value) {
                           if (_selectedDate == null) {

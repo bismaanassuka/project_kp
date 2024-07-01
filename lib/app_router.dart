@@ -32,7 +32,7 @@ class AppRouter {
         return _errorRoute();
       case '/detail_report':
         if (args is User) {
-          return MaterialPageRoute(builder: (_) => DetailReport(loginController: args, token: args.access_token));
+          return MaterialPageRoute(builder: (_) => DetailReport(loginController: args, token: args.accessToken));
         }
         return _errorRoute();
       default:

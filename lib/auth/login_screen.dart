@@ -15,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final LoginController _controller = LoginController(token: '');
+  final LoginController _controller = LoginController();
   bool _isObscure = true; // Hide password
 
   @override

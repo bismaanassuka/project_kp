@@ -109,7 +109,7 @@ class MonthlyReportScreen extends StatelessWidget {
                               arguments: user,
                             );
                           },
-                          loginController: LoginController(token: user.access_token),
+                          loginController: LoginController(),
                         ),
                       ],
                     ),

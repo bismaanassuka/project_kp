@@ -1,14 +1,16 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 class User {
   final int userId;
   final String name;
   final String email;
-  final String access_token;
+  final String accessToken;
 
   User({
     required this.userId,
     required this.name,
     required this.email,
-    required this.access_token,
+    required this.accessToken,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -19,7 +21,11 @@ class User {
       userId: userJson['id'], // Use 'id' instead of 'user_id'
       name: userJson['name'],
       email: userJson['email'],
-      access_token: json['token'], // Assuming 'token' is the remember_token
+      accessToken: json['token'], // Assuming 'token' is the remember_token
     );
+  }
+
+  Future<void> saveToken(FlutterSecureStorage secureStorage) async {
+    await secureStorage.write(key: 'access_token', value: accessToken);
   }
 }
