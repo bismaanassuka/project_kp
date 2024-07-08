@@ -10,7 +10,7 @@ class DetailReport extends StatelessWidget {
   final dynamic loginController;
   final String token;
 
-  const DetailReport({Key? key, required this.loginController, required this.token}) : super(key: key);
+  const DetailReport({super.key, required this.loginController, required this.token});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class DetailReport extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              decoration: BoxDecoration(color: Colors.white),
+              decoration: const BoxDecoration(color: Colors.white),
               constraints: BoxConstraints.expand(
                 height: MediaQuery.of(context).size.height,
               ),
@@ -37,32 +37,32 @@ class DetailReport extends StatelessWidget {
                   Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 20),
+                        padding: const EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 20),
                         child: Column(
                           children: [
-                            Text(
+                            const Text(
                               'Mei, 2024',
                               style: TextStyle(color: Colors.white, fontSize: 20),
                             ),
-                            SizedBox(height: 16),
-                            // Replace CircularChart with your custom chart widget
+                            const SizedBox(height: 16),
+
                             // CircularChart(),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 IndicatorWidget(
-                                  color: Color(0XFFA5C6D1),
+                                  color: const Color(0XFFA5C6D1),
                                   text: 'Pemasukan',
                                 ),
-                                SizedBox(width: 16),
+                                const SizedBox(width: 16),
                                 IndicatorWidget(
                                   color: Colors.white,
                                   text: 'Pengeluaran',
                                 ),
                               ],
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
@@ -88,13 +88,13 @@ class DetailReport extends StatelessWidget {
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20, top: 470),
+                    padding: const EdgeInsets.only(left: 20, right: 20, top: 470),
                     child: Column(
                       children: [
-                        Text('Daftar Transaksi', style: primaryText2),
+                        const Text('Daftar Transaksi', style: primaryText2),
                         Expanded(
                           child: ListView(
-                            children: [
+                            children: const [
                               TransactionCard(
                                 title: 'Adobe Illustrator',
                                 date: '22 Mei, 2024',
@@ -136,7 +136,7 @@ class DetailReport extends StatelessWidget {
         onPressed: () {
           Navigator.pushNamed(context, '/add_transaction');
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );

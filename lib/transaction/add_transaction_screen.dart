@@ -33,7 +33,7 @@ class _AddTransScreenState extends State<AddTransScreen> {
     super.didChangeDependencies();
     final args = ModalRoute.of(context)!.settings.arguments as LoginController?;
     if (args != null) {
-      _controller = AddTransactionController(args.user.userId.toString(), secureStorage);
+      _controller = AddTransactionController(args.user!.userId.toString(), secureStorage);
     } else {
       // Tangani kasus di mana argumen tidak ada
       // Misalnya, navigasikan kembali ke layar sebelumnya atau tampilkan pesan kesalahan

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../auth/controller/login_controller.dart';
@@ -13,7 +12,7 @@ import 'monthly_report_screen.dart';
 class ReportScreen extends StatefulWidget {
   final LoginController loginController;
 
-  const ReportScreen({Key? key, required this.loginController}) : super(key: key);
+  const ReportScreen({super.key, required this.loginController});
 
   @override
   _ReportScreenState createState() => _ReportScreenState();
@@ -21,7 +20,25 @@ class ReportScreen extends StatefulWidget {
 
 class _ReportScreenState extends State<ReportScreen> {
   int _selectedIndex = 0;
-  User? user; // Assume you have access to the logged-in user
+  User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeUser();
+  }
+
+  void _initializeUser() async {
+    setState(() {
+      user = null;
+    });
+
+    User? currentUser = await widget.loginController.getCurrentUser();
+    print('Current User: $currentUser');
+    setState(() {
+      user = currentUser;
+    });
+  }
 
   void _onButtonPressed(int index) {
     setState(() {
@@ -31,6 +48,12 @@ class _ReportScreenState extends State<ReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (user == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('LAPORAN', style: appBarText),
@@ -90,7 +113,7 @@ class _ReportScreenState extends State<ReportScreen> {
               const SizedBox(height: 16),
               Expanded(
                 child: _selectedIndex == 0
-                    ? DailyReportScreen()
+                    ? DailyReportScreen(userId: user!.userId.toString())
                     : MonthlyReportScreen(user: user!), // Pass the user object here
               ),
             ],

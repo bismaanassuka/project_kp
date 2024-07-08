@@ -1,9 +1,8 @@
-import 'package:Webcare/theme/text_theme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../theme/colors.dart';
+import '../theme/text_theme.dart';
 
 class TransactionCard extends StatelessWidget {
   final String title;
@@ -11,7 +10,7 @@ class TransactionCard extends StatelessWidget {
   final String amount;
   final Color color;
 
-  TransactionCard({
+  const TransactionCard({super.key,
     required this.title,
     required this.date,
     required this.amount,
@@ -21,28 +20,26 @@ class TransactionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       child: Slidable(
-        key: Key(title), // Pastikan setiap item memiliki key yang unik
+        key: Key(title),
         endActionPane: ActionPane(
-          motion: ScrollMotion(),
+          motion: const ScrollMotion(),
           children: [
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             SlidableAction(
               onPressed: (context) {
-                // Lakukan aksi ketika tombol edit ditekan
-                // Implementasikan logika pengeditan item di sini
+                // Implement edit action here
               },
               backgroundColor: secondaryColor,
               foregroundColor: Colors.white,
               icon: Icons.edit,
               label: 'Edit',
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             SlidableAction(
               onPressed: (context) {
-                // Lakukan aksi ketika tombol hapus ditekan
-                // Implementasikan logika penghapusan item di sini
+                // Implement delete action here
               },
               backgroundColor: red3,
               foregroundColor: Colors.white,
@@ -52,7 +49,7 @@ class TransactionCard extends StatelessWidget {
           ],
         ),
         child: Container(
-          padding: EdgeInsets.all(2),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(5),
@@ -61,7 +58,7 @@ class TransactionCard extends StatelessWidget {
                 color: Colors.grey.withOpacity(0.5),
                 spreadRadius: 1,
                 blurRadius: 5,
-                offset: Offset(0, 1),
+                offset: const Offset(0, 1),
               ),
             ],
           ),

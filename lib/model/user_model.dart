@@ -14,14 +14,13 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    // Extract the 'user' object from the JSON response
     var userJson = json['user'];
 
     return User(
-      userId: userJson['id'], // Use 'id' instead of 'user_id'
+      userId: userJson['id'],
       name: userJson['name'],
       email: userJson['email'],
-      accessToken: json['token'], // Assuming 'token' is the remember_token
+      accessToken: json['token'],
     );
   }
 

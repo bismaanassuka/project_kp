@@ -14,8 +14,8 @@ class AddTransactionController {
   Future<bool> addTransaction(bool isIncome, String title, String amount, String description, DateTime date) async {
     final dio = Dio();
     final url = isIncome
-        ? 'https://8a49-114-5-223-249.ngrok-free.app/api/incomes'
-        : 'https://8a49-114-5-223-249.ngrok-free.app/api/expanse';
+        ? 'https://33c8-114-5-110-243.ngrok-free.app/api/incomes'
+        : 'https://33c8-114-5-110-243.ngrok-free.app/api/expanse';
 
     print('Attempting to post to: $url');
     print('Data: {user_id: $userId, name: $title, amount: $amount, date_time: ${date.toIso8601String()}, description: $description}');
@@ -33,7 +33,7 @@ class AddTransactionController {
           'user_id': userId,
           'name': title,
           'amount': double.parse(amount),
-          'date_time': date.toIso8601String().substring(0, 10), // Ensure date is in YYYY-MM-DD format
+          'date_time': date.toIso8601String().substring(0, 10),
           'description': description,
         },
         options: Options(

@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
+
+
+import 'package:Webcare/auth/register_screen.dart';
 import 'package:flutter/gestures.dart';
-import 'package:Webcare/auth/register_screen.dart'; // Sesuaikan dengan lokasi RegisterScreen Anda
+import 'package:flutter/material.dart';
+
 import '../theme/colors.dart';
 import '../theme/text_theme.dart';
 import '../widgets/custom_button.dart';
 import 'controller/login_controller.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -61,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                           onSaved: (value) {
-                            _controller.email = value;
+                            _controller.email = value!;
                           },
                         ),
                         TextFormField(
@@ -87,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                           onSaved: (value) {
-                            _controller.password = value;
+                            _controller.password = value!;
                           },
                         ),
                       ],
@@ -98,7 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       ? const CircularProgressIndicator() // Show loading indicator
                       : CustomButton(
                     buttonText: 'MASUK',
-                    onPressed: () {_controller.login(context);},
+                    onPressed: () {
+                      _controller.login(context);
+                    },
                   ),
                   const SizedBox(height: 20),
                   Center(
@@ -116,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextSpan(
                             text: 'Daftar',
                             style: const TextStyle(
-                              color: secondaryColor,
+                              color: secondaryColor, // Pastikan secondaryColor sudah diimport
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),

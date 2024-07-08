@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -30,12 +29,9 @@ class LoginController {
         isLoading = true;
         Dio dio = Dio();
         var response = await dio.post(
-          'https://8a49-114-5-223-249.ngrok-free.app/api/login',
+          'https://33c8-114-5-110-243.ngrok-free.app/api/login',
           data: data,
         );
-
-        print("Response status: ${response.statusCode}");
-        print("Response data: ${response.data}");
 
         isLoading = false;
 
@@ -43,13 +39,23 @@ class LoginController {
           if (response.data != null && response.data is Map<String, dynamic>) {
             _user = User.fromJson(response.data);
 
-            // Simpan token ke secure storage
-            await _user?.saveToken(secureStorage);
+            // Simpan data pengguna ke secure storage
+            await secureStorage.write(key: 'user_id', value: _user?.userId.toString());
+            await secureStorage.write(key: 'name', value: _user?.name);
+            await secureStorage.write(key: 'email', value: _user?.email);
+            await secureStorage.write(key: 'access_token', value: _user?.accessToken);
+
+            print("User ID: ${_user?.userId}");
+            print("Name: ${_user?.name}");
+            print("Email: ${_user?.email}");
+            print("Access Token: ${_user?.accessToken}");
 
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Login successful")),
             );
-            Navigator.push(
+
+            // Navigasi ke halaman laporan dan hapus halaman login dari tumpukan navigasi
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                 builder: (context) => ReportScreen(loginController: this),
@@ -67,7 +73,6 @@ class LoginController {
         }
       } catch (e) {
         isLoading = false;
-        print("Error: $e");
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Login failed: $e")),
         );
@@ -76,4 +81,27 @@ class LoginController {
   }
 
   User get user => _user!;
+
+  Future<User?> getCurrentUser() async {
+    try {
+      String? userId = await secureStorage.read(key: 'user_id');
+      String? name = await secureStorage.read(key: 'name');
+      String? email = await secureStorage.read(key: 'email');
+      String? token = await secureStorage.read(key: 'access_token');
+
+      if (userId != null && name != null && email != null && token != null) {
+        print('User fetched: userId=$userId, name=$name, email=$email, token=$token');
+        return User(
+          userId: int.parse(userId),
+          name: name,
+          email: email,
+          accessToken: token,
+        );
+      }
+      return null;
+    } catch (e) {
+      print('Error fetching user: $e');
+      return null;
+    }
+  }
 }

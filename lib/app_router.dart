@@ -1,3 +1,4 @@
+import 'package:Webcare/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'auth/controller/login_controller.dart';
 import 'auth/login_screen.dart';
@@ -14,6 +15,8 @@ class AppRouter {
     final args = settings.arguments;
 
     switch (settings.name) {
+      case '/splash':
+        return MaterialPageRoute(builder: (_) => SplashScreen());
       case '/':
         return MaterialPageRoute(builder: (_) => LoginScreen());
       case '/register':
