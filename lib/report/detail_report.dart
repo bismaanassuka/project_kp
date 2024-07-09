@@ -5,17 +5,45 @@ import '../widgets/custom_navbar.dart';
 import '../widgets/custom_total_card.dart';
 import '../widgets/custom_transaction_card.dart';
 import '../widgets/indicator_widget.dart';
+import 'controller/monthly_report_controller.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class DetailReport extends StatelessWidget {
+class DetailReport extends StatefulWidget {
   final dynamic loginController;
   final String token;
 
   const DetailReport({super.key, required this.loginController, required this.token});
 
   @override
+  _DetailReportState createState() => _DetailReportState();
+}
+
+class _DetailReportState extends State<DetailReport> {
+  late final MonthlyReportController _controller;
+  Map<String, dynamic>? _monthlyReport;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = MonthlyReportController(widget.loginController.userId, const FlutterSecureStorage());
+    _fetchMonthlyReport();
+  }
+
+  Future<void> _fetchMonthlyReport() async {
+    final report = await _controller.getMonthlyReport();
+    if (mounted) {
+      setState(() {
+        _monthlyReport = report;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: _monthlyReport == null
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,7 +73,6 @@ class DetailReport extends StatelessWidget {
                               style: TextStyle(color: Colors.white, fontSize: 20),
                             ),
                             const SizedBox(height: 16),
-
                             // CircularChart(),
                             const SizedBox(height: 16),
                             Row(
@@ -68,14 +95,14 @@ class DetailReport extends StatelessWidget {
                               children: [
                                 TotalCard(
                                   title: 'Pemasukan',
-                                  amount: 'Rp.19,980,00',
+                                  amount: 'Rp. ${_monthlyReport!['total_income'].toString()}',
                                   icon: Icons.input_rounded,
                                   color: Colors.green,
                                   color2: green2,
                                 ),
                                 TotalCard(
                                   title: 'Pengeluaran',
-                                  amount: 'Rp.13,980,00',
+                                  amount: 'Rp. ${_monthlyReport!['total_expense'].toString()}',
                                   icon: Icons.output_rounded,
                                   color: Colors.red,
                                   color2: red2,
@@ -93,33 +120,17 @@ class DetailReport extends StatelessWidget {
                       children: [
                         const Text('Daftar Transaksi', style: primaryText2),
                         Expanded(
-                          child: ListView(
-                            children: const [
-                              TransactionCard(
-                                title: 'Adobe Illustrator',
-                                date: '22 Mei, 2024',
-                                amount: '-Rp 32.0000,-',
-                                color: Colors.red,
-                              ),
-                              TransactionCard(
-                                title: 'Dribbble',
-                                date: '22 Mei, 2024',
-                                amount: '-Rp 15.000.000,-',
-                                color: Colors.red,
-                              ),
-                              TransactionCard(
-                                title: 'Sony Camera',
-                                date: '22 Mei, 2024',
-                                amount: '-Rp 1.500.000,-',
-                                color: Colors.red,
-                              ),
-                              TransactionCard(
-                                title: 'Paypal',
-                                date: '22 Mei, 2024',
-                                amount: '+Rp 32.000.000,-',
-                                color: Colors.green,
-                              ),
-                            ],
+                          child: ListView.builder(
+                            itemCount: (_monthlyReport!['transactions'] as List).length,
+                            itemBuilder: (context, index) {
+                              final transaction = (_monthlyReport!['transactions'] as List)[index];
+                              return TransactionCard(
+                                title: transaction['name'],
+                                date: transaction['date_time'],
+                                amount: transaction['amount'],
+                                color: transaction['type'] == 'income' ? Colors.green : Colors.red,
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -131,7 +142,7 @@ class DetailReport extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavbar(loginController: loginController), // Pass loginController here
+      bottomNavigationBar: CustomNavbar(loginController: widget.loginController), // Pass loginController here
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/add_transaction');

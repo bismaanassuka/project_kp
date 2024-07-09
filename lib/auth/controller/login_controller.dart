@@ -29,7 +29,7 @@ class LoginController {
         isLoading = true;
         Dio dio = Dio();
         var response = await dio.post(
-          'https://33c8-114-5-110-243.ngrok-free.app/api/login',
+          'https://ef13-61-5-57-84.ngrok-free.app/api/login',
           data: data,
         );
 

@@ -114,7 +114,7 @@ class _ReportScreenState extends State<ReportScreen> {
               Expanded(
                 child: _selectedIndex == 0
                     ? DailyReportScreen(userId: user!.userId.toString())
-                    : MonthlyReportScreen(user: user!), // Pass the user object here
+                    : MonthlyReportScreen(userId: user!.userId.toString()), // Pass the user object here
               ),
             ],
           ),

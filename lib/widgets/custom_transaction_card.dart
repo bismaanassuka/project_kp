@@ -9,13 +9,18 @@ class TransactionCard extends StatelessWidget {
   final String date;
   final String amount;
   final Color color;
+  final Function()? onEdit; // Tambahkan fungsi edit
+  final Function()? onDelete; // Tambahkan fungsi delete
 
-  const TransactionCard({super.key,
+  const TransactionCard({
+    Key? key,
     required this.title,
     required this.date,
     required this.amount,
     required this.color,
-  });
+    this.onEdit,
+    this.onDelete,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +33,7 @@ class TransactionCard extends StatelessWidget {
           children: [
             const SizedBox(width: 10),
             SlidableAction(
-              onPressed: (context) {
-                // Implement edit action here
-              },
+              onPressed: onEdit?.call(), // Panggil fungsi onEdit
               backgroundColor: secondaryColor,
               foregroundColor: Colors.white,
               icon: Icons.edit,
@@ -38,9 +41,7 @@ class TransactionCard extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             SlidableAction(
-              onPressed: (context) {
-                // Implement delete action here
-              },
+              onPressed: onDelete?.call(), // Panggil fungsi onDelete
               backgroundColor: red3,
               foregroundColor: Colors.white,
               icon: Icons.delete,

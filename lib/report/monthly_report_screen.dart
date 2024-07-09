@@ -1,13 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:Webcare/auth/controller/login_controller.dart';
-import 'package:Webcare/model/user_model.dart'; // Adjust according to your project structure
-import '../widgets/button_card.dart'; // Adjust according to your project structure
-import '../theme/text_theme.dart'; // Adjust according to your project structure
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../auth/controller/login_controller.dart';
+import '../widgets/button_card.dart';
+import '../theme/text_theme.dart';
+import 'controller/monthly_report_controller.dart';
 
-class MonthlyReportScreen extends StatelessWidget {
-  final User user;
+class MonthlyReportScreen extends StatefulWidget {
+  final String userId;
 
-  MonthlyReportScreen({required this.user});
+  MonthlyReportScreen({required this.userId});
+
+  @override
+  _MonthlyReportScreenState createState() => _MonthlyReportScreenState();
+}
+
+class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
+  late final MonthlyReportController _controller;
+  Map<String, dynamic>? _monthlyReport;
+
+  @override
+  void initState() {
+    super.initState();
+    print('MonthlyReportScreen UserId: ${widget.userId}');
+    _controller = MonthlyReportController(widget.userId, const FlutterSecureStorage());
+    _fetchMonthlyReport();
+  }
+
+  Future<void> _fetchMonthlyReport() async {
+    final report = await _controller.getMonthlyReport();
+    if (mounted) {
+      setState(() {
+        _monthlyReport = report;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    // Perform any necessary cleanup
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +47,11 @@ class MonthlyReportScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Monthly Report'),
       ),
-      body: Container(
+      body: _monthlyReport == null
+          ? Center(child: CircularProgressIndicator())
+          : Container(
         color: Colors.white,
+        padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -58,7 +93,7 @@ class MonthlyReportScreen extends StatelessWidget {
                                   ),
                                   SizedBox(width: 20),
                                   Text(
-                                    'Rp 250.000',
+                                    'Rp ${_monthlyReport!['total_income'].toString()}',
                                     style: TextStyle(color: Colors.green),
                                   ),
                                 ],
@@ -72,7 +107,7 @@ class MonthlyReportScreen extends StatelessWidget {
                                   ),
                                   SizedBox(width: 20),
                                   Text(
-                                    '- Rp 10.000',
+                                    '- Rp ${_monthlyReport!['total_expense'].toString()}',
                                     style: TextStyle(color: Colors.red),
                                   ),
                                 ],
@@ -91,7 +126,7 @@ class MonthlyReportScreen extends StatelessWidget {
                                   ),
                                   SizedBox(width: 20),
                                   Text(
-                                    'Rp 240.000',
+                                    'Rp ${_monthlyReport!['profit'].toString()}',
                                     style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
                                   ),
                                 ],
@@ -106,7 +141,7 @@ class MonthlyReportScreen extends StatelessWidget {
                             Navigator.pushNamed(
                               context,
                               '/detail_report',
-                              arguments: user,
+                              arguments: widget.userId,
                             );
                           },
                           loginController: LoginController(),

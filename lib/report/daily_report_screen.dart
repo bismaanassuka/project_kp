@@ -25,7 +25,8 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
   void initState() {
     super.initState();
     print('DailyReportScreen UserId: ${widget.userId}');
-    _controller = DailyReportController(widget.userId, const FlutterSecureStorage());
+    _controller =
+        DailyReportController(widget.userId, const FlutterSecureStorage());
     _fetchDailyTransactions();
     _fetchTotals();
   }
@@ -39,14 +40,18 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
     }
   }
 
-  Map<String, List<Map<String, dynamic>>> _groupTransactionsByDate(Map<String, dynamic> transactions) {
+  Map<String, List<Map<String, dynamic>>> _groupTransactionsByDate(
+      Map<String, dynamic> transactions) {
     Map<String, List<Map<String, dynamic>>> groupedTransactions = {};
 
-    List<Map<String, dynamic>> incomeTransactions = List<Map<String, dynamic>>.from(transactions['income']);
-    List<Map<String, dynamic>> expenseTransactions = List<Map<String, dynamic>>.from(transactions['expense']);
+    List<Map<String, dynamic>> incomeTransactions =
+        List<Map<String, dynamic>>.from(transactions['income']);
+    List<Map<String, dynamic>> expenseTransactions =
+        List<Map<String, dynamic>>.from(transactions['expense']);
 
     for (var transaction in incomeTransactions) {
-      String date = transaction['date'].substring(0, 10); // Ambil tanggal (YYYY-MM-DD)
+      String date =
+          transaction['date'].substring(0, 10); // Ambil tanggal (YYYY-MM-DD)
       if (groupedTransactions[date] == null) {
         groupedTransactions[date] = [];
       }
@@ -57,7 +62,8 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
     }
 
     for (var transaction in expenseTransactions) {
-      String date = transaction['date'].substring(0, 10); // Ambil tanggal (YYYY-MM-DD)
+      String date =
+          transaction['date'].substring(0, 10); // Ambil tanggal (YYYY-MM-DD)
       if (groupedTransactions[date] == null) {
         groupedTransactions[date] = [];
       }
@@ -87,8 +93,34 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
+        print('Selected date: $_selectedDate'); // Debug: print selected date
         _fetchDailyTransactions();
       });
+    }
+  }
+
+
+  void _handleEditTransaction(String transactionId, Map<String, dynamic> updatedTransaction, bool isIncome) async {
+    bool success = await _controller.editTransaction(transactionId, updatedTransaction, isIncome);
+    if (success) {
+      // Handle success, e.g., show a success message
+      print('Transaction edited successfully');
+      _fetchDailyTransactions();
+    } else {
+      // Handle failure, e.g., show an error message
+      print('Failed to edit transaction');
+    }
+  }
+
+  void _handleDeleteTransaction(String transactionId, bool isIncome) async {
+    bool success = await _controller.deleteTransaction(transactionId, isIncome);
+    if (success) {
+      // Handle success, e.g., show a success message
+      print('Transaction deleted successfully');
+      _fetchDailyTransactions();
+    } else {
+      // Handle failure, e.g., show an error message
+      print('Failed to delete transaction');
     }
   }
 
@@ -98,75 +130,78 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
       body: _totals == null || _dailyTransactions.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TotalCard(
-                    title: 'Pemasukan',
-                    amount: _totals!['income']!.toStringAsFixed(2),
-                    icon: Icons.input_rounded,
-                    color: Colors.green,
-                    color2: green2,
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        TotalCard(
+                          title: 'Pemasukan',
+                          amount: _totals!['income']!.toStringAsFixed(2),
+                          icon: Icons.input_rounded,
+                          color: Colors.green,
+                          color2: green2,
+                        ),
+                        TotalCard(
+                          title: 'Pengeluaran',
+                          amount: _totals!['expense']!.toStringAsFixed(2),
+                          icon: Icons.output_rounded,
+                          color: Colors.red,
+                          color2: red2,
+                        ),
+                      ],
+                    ),
                   ),
-                  TotalCard(
-                    title: 'Pengeluaran',
-                    amount: _totals!['expense']!.toStringAsFixed(2),
-                    icon: Icons.output_rounded,
-                    color: Colors.red,
-                    color2: red2,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    setState(() {
-                      _selectedDate = _selectedDate.subtract(const Duration(days: 1));
-                      _fetchDailyTransactions();
-                    });
-                  },
-                ),
-                TextButton(
-                  onPressed: () => _selectDate(context),
-                  child: Row(
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.calendar_today_rounded),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          setState(() {
+                            _selectedDate =
+                                _selectedDate.subtract(const Duration(days: 1));
+                            _fetchDailyTransactions();
+                          });
+                        },
+                      ),
+                      TextButton(
+                        onPressed: () => _selectDate(context),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_today_rounded),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_forward),
+                        onPressed: () {
+                          setState(() {
+                            _selectedDate =
+                                _selectedDate.add(const Duration(days: 1));
+                            _fetchDailyTransactions();
+                          });
+                        },
                       ),
                     ],
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_forward),
-                  onPressed: () {
-                    setState(() {
-                      _selectedDate = _selectedDate.add(const Duration(days: 1));
-                      _fetchDailyTransactions();
-                    });
-                  },
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  const Text('Daftar Transaksi', style: primaryText2),
+                  const SizedBox(height: 8),
+                  _buildTransactionList(),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            const Text('Daftar Transaksi', style: primaryText2),
-            const SizedBox(height: 8),
-            _buildTransactionList(),
-          ],
-        ),
-      ),
     );
   }
 
@@ -181,31 +216,61 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
       );
     } else {
       _dailyTransactions.forEach((date, transactions) {
-        transactionWidgets.add(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Text(
-                  date,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        // Filter transactions by date
+        if (date == _selectedDate.toString().substring(0, 10)) {
+          transactionWidgets.add(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    date,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              ...transactions.map((transaction) => TransactionCard(
-                title: transaction['transaction']['title'],
-                date: transaction['transaction']['date'],
-                amount: transaction['transaction']['amount'].toString(),
-                color: transaction['transaction']['color'],
-              )),
-            ],
-          ),
-        );
+                ...transactions.map((transaction) {
+                  // Ensure transaction is not null and has 'transaction' map
+                  if (transaction.containsKey('transaction')) {
+                    String transactionId = transaction['transaction']['id'] ?? ''; // handle null id
+                    bool isIncome = transaction['type'] == 'income';
+
+                    return TransactionCard(
+                      title: transaction['transaction']['title'] ?? '',
+                      date: transaction['transaction']['date'] ?? '',
+                      amount: transaction['transaction']['amount']?.toString() ?? '',
+                      color: transaction['transaction']['color'] ?? Colors.black,
+                      onEdit: () {
+                        _handleEditTransaction(
+                          transactionId,
+                          transaction['transaction'],
+                          isIncome,
+                        );
+                      },
+                      onDelete: () {
+                        _handleDeleteTransaction(
+                          transactionId,
+                          isIncome,
+                        );
+                      },
+                    );
+                  } else {
+                    return SizedBox(); // Return an empty widget if transaction data is invalid
+                  }
+                }).toList(),
+              ],
+            ),
+          );
+        }
       });
     }
 
-    return Column(
-      children: transactionWidgets,
+    return SingleChildScrollView(
+      child: Column(
+        children: transactionWidgets,
+      ),
     );
   }
+
+
 }

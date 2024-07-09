@@ -14,7 +14,7 @@ class DailyReportController {
 
   Future<Map<String, dynamic>?> getDailyTransactions(DateTime date) async {
     final dio = Dio();
-    final url = 'https://33c8-114-5-110-243.ngrok-free.app/api/daily-report/transaction-by-day';
+    final url = 'https://ef13-61-5-57-84.ngrok-free.app/api/daily-report/transaction-by-day';
 
     print('Fetching daily transactions from: $url');
     print('Date: ${date.toIso8601String().substring(0, 10)}');
@@ -88,7 +88,7 @@ class DailyReportController {
 
   Future<Map<String, double>?> getTotalIncomesAndExpenses() async {
     final dio = Dio();
-    final url = 'https://33c8-114-5-110-243.ngrok-free.app/api/daily-report/totals-incomes-expanse';
+    final url = 'https://ef13-61-5-57-84.ngrok-free.app/api/daily-report/totals-incomes-expanse';
 
     print('Fetching total incomes and expenses from: $url');
 
@@ -137,6 +137,79 @@ class DailyReportController {
     } catch (e) {
       print('Error: $e');
       return null;
+    }
+  }
+
+  Future<bool> editTransaction(String transactionId, Map<String, dynamic> updatedTransaction, bool isIncome) async {
+    final dio = Dio();
+    final url = isIncome
+        ? 'https://ef13-61-5-57-84.ngrok-free.app/api/incomes/$transactionId'
+        : 'https://ef13-61-5-57-84.ngrok-free.app/api/expanse/$transactionId';
+
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        print('Error: No token found');
+        return false;
+      }
+
+      final response = await dio.put(
+        url,
+        data: updatedTransaction,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        print('Transaction updated successfully');
+        return true;
+      } else {
+        print('Failed to update transaction: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error editing transaction: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteTransaction(String transactionId, bool isIncome) async {
+    final dio = Dio();
+    final url = isIncome
+        ? 'https://ef13-61-5-57-84.ngrok-free.app/api/incomes/$transactionId'
+        : 'https://ef13-61-5-57-84.ngrok-free.app/api/expanse/$transactionId';
+
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        print('Error: No token found');
+        return false;
+      }
+
+      final response = await dio.delete(
+        url,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        print('Transaction deleted successfully');
+        return true;
+      } else {
+        print('Failed to delete transaction: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error deleting transaction: $e');
+      return false;
     }
   }
 }
