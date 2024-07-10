@@ -9,7 +9,6 @@ import 'report/detail_report.dart';
 import 'report/report_screen.dart';
 import 'transaction/add_transaction_screen.dart';
 
-
 class AppRouter {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     final args = settings.arguments;
@@ -34,8 +33,13 @@ class AppRouter {
         }
         return _errorRoute();
       case '/detail_report':
-        if (args is User) {
-          return MaterialPageRoute(builder: (_) => DetailReport(loginController: args, token: args.accessToken));
+        if (args is Map<String, dynamic>) {
+          return MaterialPageRoute(
+            builder: (_) => DetailReport(
+              loginController: args['loginController'],
+              report: args['report'],
+            ),
+          );
         }
         return _errorRoute();
       default:

@@ -16,29 +16,28 @@ class MonthlyReportScreen extends StatefulWidget {
 
 class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
   late final MonthlyReportController _controller;
-  Map<String, dynamic>? _monthlyReport;
+  List<Map<String, dynamic>>? _monthlyReports;
 
   @override
   void initState() {
     super.initState();
     print('MonthlyReportScreen UserId: ${widget.userId}');
-    _controller = MonthlyReportController(widget.userId, const FlutterSecureStorage());
-    _fetchMonthlyReport();
+    _controller = MonthlyReportController(const FlutterSecureStorage());
+    _fetchMonthlyReports();
   }
 
-  Future<void> _fetchMonthlyReport() async {
-    final report = await _controller.getMonthlyReport();
-    if (mounted) {
-      setState(() {
-        _monthlyReport = report;
-      });
+  Future<void> _fetchMonthlyReports() async {
+    try {
+      final reports = await _controller.getMonthlyReport(widget.userId);
+      if (mounted) {
+        setState(() {
+          _monthlyReports = reports;
+        });
+      }
+    } catch (e) {
+      print('Error fetching monthly reports: $e');
+      // Handle error, e.g., show error message to the user
     }
-  }
-
-  @override
-  void dispose() {
-    // Perform any necessary cleanup
-    super.dispose();
   }
 
   @override
@@ -47,113 +46,109 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
       appBar: AppBar(
         title: Text('Monthly Report'),
       ),
-      body: _monthlyReport == null
+      body: _monthlyReports == null
           ? Center(child: CircularProgressIndicator())
-          : Container(
-        color: Colors.white,
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 1,
-                          blurRadius: 5,
-                          offset: Offset(0, 1),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '1 Mei 2024 - 31 Mei 2024',
-                                style: primaryText2.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
-                              ),
-                              SizedBox(height: 24),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Pemasukkan',
-                                    style: primaryText2.copyWith(fontSize: 14),
-                                  ),
-                                  SizedBox(width: 20),
-                                  Text(
-                                    'Rp ${_monthlyReport!['total_income'].toString()}',
-                                    style: TextStyle(color: Colors.green),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Pengeluaran',
-                                    style: primaryText2.copyWith(fontSize: 14),
-                                  ),
-                                  SizedBox(width: 20),
-                                  Text(
-                                    '- Rp ${_monthlyReport!['total_expense'].toString()}',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                              Divider(
-                                color: Colors.grey,
-                                thickness: 1,
-                                height: 20,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Profit',
-                                    style: primaryText2.copyWith(fontSize: 14),
-                                  ),
-                                  SizedBox(width: 20),
-                                  Text(
-                                    'Rp ${_monthlyReport!['profit'].toString()}',
-                                    style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 20),
-                        ButtonCard(
-                          buttonText: 'Lihat Detail',
-                          onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/detail_report',
-                              arguments: widget.userId,
-                            );
-                          },
-                          loginController: LoginController(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+          : ListView.builder(
+        itemCount: _monthlyReports!.length,
+        itemBuilder: (context, index) {
+          final report = _monthlyReports![index];
+          return Container(
+            margin: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 1),
+                ),
+              ],
             ),
-          ],
-        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${report['month']} ${report['year']}',
+                        style: primaryText2.copyWith(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Pemasukkan',
+                            style: primaryText2.copyWith(fontSize: 14),
+                          ),
+                          Text(
+                            'Rp ${report['total_income'].toString()}',
+                            style: TextStyle(color: Colors.green),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Pengeluaran',
+                            style: primaryText2.copyWith(fontSize: 14),
+                          ),
+                          Text(
+                            '- Rp ${report['total_expenses'].toString()}',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5),
+                      Divider(
+                        color: Colors.grey,
+                        thickness: 1,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Profit',
+                            style: primaryText2.copyWith(fontSize: 14),
+                          ),
+                          Text(
+                            'Rp ${report['remaining_balance'].toString()}',
+                            style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                ButtonCard(
+                  buttonText: 'Lihat Detail',
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/detail_report',
+                      arguments: {
+                        'userId': widget.userId,
+                        'report': report,
+                      },
+                    );
+                  },
+                  loginController: LoginController(),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

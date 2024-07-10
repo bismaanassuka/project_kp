@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
 
 class DailyReportController {
   final String userId;
   final FlutterSecureStorage secureStorage;
 
-  DailyReportController(this.userId, this.secureStorage);
+  DailyReportController(this.userId, this.secureStorage, Dio dio);
 
   Future<String?> _getToken() async {
     return await secureStorage.read(key: 'access_token');
@@ -14,10 +15,13 @@ class DailyReportController {
 
   Future<Map<String, dynamic>?> getDailyTransactions(DateTime date) async {
     final dio = Dio();
-    final url = 'https://ef13-61-5-57-84.ngrok-free.app/api/daily-report/transaction-by-day';
+    final url = 'https://871f-114-5-102-104.ngrok-free.app/api/daily-report/transaction-by-day';
+
+    // Format the date to 'Y-m-d' as expected by the backend
+    final formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
     print('Fetching daily transactions from: $url');
-    print('Date: ${date.toIso8601String().substring(0, 10)}');
+    print('Date: $formattedDate');
 
     try {
       final token = await _getToken();
@@ -31,7 +35,7 @@ class DailyReportController {
         url,
         queryParameters: {
           'user_id': userId,
-          'date': date.toIso8601String().substring(0, 10),
+          'date_time': formattedDate,  // Ensure the parameter name matches the backend expectation
         },
         options: Options(
           headers: {
@@ -88,7 +92,7 @@ class DailyReportController {
 
   Future<Map<String, double>?> getTotalIncomesAndExpenses() async {
     final dio = Dio();
-    final url = 'https://ef13-61-5-57-84.ngrok-free.app/api/daily-report/totals-incomes-expanse';
+    final url = 'https://871f-114-5-102-104.ngrok-free.app/api/daily-report/totals-incomes-expanse';
 
     print('Fetching total incomes and expenses from: $url');
 
@@ -131,7 +135,7 @@ class DailyReportController {
         print('Parsed Totals: $totals');
         return totals;
       } else {
-        print('Failed to fetch data');
+        print('Failed to fetch data. Status code: ${response.statusCode}');
         return null;
       }
     } catch (e) {
@@ -143,8 +147,8 @@ class DailyReportController {
   Future<bool> editTransaction(String transactionId, Map<String, dynamic> updatedTransaction, bool isIncome) async {
     final dio = Dio();
     final url = isIncome
-        ? 'https://ef13-61-5-57-84.ngrok-free.app/api/incomes/$transactionId'
-        : 'https://ef13-61-5-57-84.ngrok-free.app/api/expanse/$transactionId';
+        ? 'https://871f-114-5-102-104.ngrok-free.app/api/incomes/$transactionId'
+        : 'https://871f-114-5-102-104.ngrok-free.app/api/expanse/$transactionId';
 
     try {
       final token = await _getToken();
@@ -168,7 +172,7 @@ class DailyReportController {
         print('Transaction updated successfully');
         return true;
       } else {
-        print('Failed to update transaction: ${response.statusCode}');
+        print('Failed to update transaction. Status code: ${response.statusCode}');
         return false;
       }
     } catch (e) {
@@ -180,8 +184,8 @@ class DailyReportController {
   Future<bool> deleteTransaction(String transactionId, bool isIncome) async {
     final dio = Dio();
     final url = isIncome
-        ? 'https://ef13-61-5-57-84.ngrok-free.app/api/incomes/$transactionId'
-        : 'https://ef13-61-5-57-84.ngrok-free.app/api/expanse/$transactionId';
+        ? 'https://871f-114-5-102-104.ngrok-free.app/api/incomes/$transactionId'
+        : 'https://871f-114-5-102-104.ngrok-free.app/api/expanse/$transactionId';
 
     try {
       final token = await _getToken();
@@ -204,7 +208,7 @@ class DailyReportController {
         print('Transaction deleted successfully');
         return true;
       } else {
-        print('Failed to delete transaction: ${response.statusCode}');
+        print('Failed to delete transaction. Status code: ${response.statusCode}');
         return false;
       }
     } catch (e) {

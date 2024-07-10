@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../theme/colors.dart';
@@ -18,59 +19,57 @@ class DailyReportScreen extends StatefulWidget {
 class _DailyReportScreenState extends State<DailyReportScreen> {
   late final DailyReportController _controller;
   late DateTime _selectedDate = DateTime.now();
-  Map<String, List<Map<String, dynamic>>> _dailyTransactions = {};
+  List<Map<String, dynamic>> _dailyTransactions = [];
   Map<String, double>? _totals;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    print('DailyReportScreen UserId: ${widget.userId}');
-    _controller =
-        DailyReportController(widget.userId, const FlutterSecureStorage());
+    _controller = DailyReportController(
+        widget.userId, const FlutterSecureStorage(), Dio());
     _fetchDailyTransactions();
     _fetchTotals();
   }
 
   Future<void> _fetchDailyTransactions() async {
-    final transactions = await _controller.getDailyTransactions(_selectedDate);
-    if (transactions != null) {
+    if (!_isLoading) {
       setState(() {
-        _dailyTransactions = _groupTransactionsByDate(transactions);
+        _isLoading = true;
+      });
+
+      final transactions =
+          await _controller.getDailyTransactions(_selectedDate);
+      setState(() {
+        _dailyTransactions = _groupTransactionsByDate(transactions ?? {});
+        _isLoading = false;
       });
     }
   }
 
-  Map<String, List<Map<String, dynamic>>> _groupTransactionsByDate(
-      Map<String, dynamic> transactions) {
-    Map<String, List<Map<String, dynamic>>> groupedTransactions = {};
+  List<Map<String, dynamic>> _groupTransactionsByDate(
+      Map<String, dynamic>? transactions) {
+    List<Map<String, dynamic>> groupedTransactions = [];
+    if (transactions == null) return groupedTransactions;
 
     List<Map<String, dynamic>> incomeTransactions =
-        List<Map<String, dynamic>>.from(transactions['income']);
+        List<Map<String, dynamic>>.from(transactions['income'] ?? []);
     List<Map<String, dynamic>> expenseTransactions =
-        List<Map<String, dynamic>>.from(transactions['expense']);
+        List<Map<String, dynamic>>.from(transactions['expense'] ?? []);
 
     for (var transaction in incomeTransactions) {
-      String date =
-          transaction['date'].substring(0, 10); // Ambil tanggal (YYYY-MM-DD)
-      if (groupedTransactions[date] == null) {
-        groupedTransactions[date] = [];
+      String date = transaction['date'].substring(0, 10); // YYYY-MM-DD
+      if (date == _selectedDate.toString().substring(0, 10)) {
+        groupedTransactions.add({'type': 'income', 'transaction': transaction});
       }
-      groupedTransactions[date]!.add({
-        'type': 'income',
-        'transaction': transaction,
-      });
     }
 
     for (var transaction in expenseTransactions) {
-      String date =
-          transaction['date'].substring(0, 10); // Ambil tanggal (YYYY-MM-DD)
-      if (groupedTransactions[date] == null) {
-        groupedTransactions[date] = [];
+      String date = transaction['date'].substring(0, 10); // YYYY-MM-DD
+      if (date == _selectedDate.toString().substring(0, 10)) {
+        groupedTransactions
+            .add({'type': 'expense', 'transaction': transaction});
       }
-      groupedTransactions[date]!.add({
-        'type': 'expense',
-        'transaction': transaction,
-      });
     }
 
     return groupedTransactions;
@@ -93,42 +92,36 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        print('Selected date: $_selectedDate'); // Debug: print selected date
         _fetchDailyTransactions();
       });
     }
   }
 
-
-  void _handleEditTransaction(String transactionId, Map<String, dynamic> updatedTransaction, bool isIncome) async {
-    bool success = await _controller.editTransaction(transactionId, updatedTransaction, isIncome);
+  void _handleEditTransaction(String transactionId,
+      Map<String, dynamic> updatedTransaction, bool isIncome) async {
+    bool success = await _controller.editTransaction(
+        transactionId, updatedTransaction, isIncome);
     if (success) {
-      // Handle success, e.g., show a success message
-      print('Transaction edited successfully');
       _fetchDailyTransactions();
     } else {
-      // Handle failure, e.g., show an error message
-      print('Failed to edit transaction');
+      // Handle failure
     }
   }
 
   void _handleDeleteTransaction(String transactionId, bool isIncome) async {
     bool success = await _controller.deleteTransaction(transactionId, isIncome);
     if (success) {
-      // Handle success, e.g., show a success message
-      print('Transaction deleted successfully');
       _fetchDailyTransactions();
     } else {
-      // Handle failure, e.g., show an error message
-      print('Failed to delete transaction');
+      // Handle failure
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _totals == null || _dailyTransactions.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+      body: _totals == null || _isLoading
+          ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,16 +148,16 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back),
+                        icon: Icon(Icons.arrow_back),
                         onPressed: () {
                           setState(() {
                             _selectedDate =
-                                _selectedDate.subtract(const Duration(days: 1));
+                                _selectedDate.subtract(Duration(days: 1));
                             _fetchDailyTransactions();
                           });
                         },
@@ -173,31 +166,34 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
                         onPressed: () => _selectDate(context),
                         child: Row(
                           children: [
-                            const Icon(Icons.calendar_today_rounded),
-                            const SizedBox(width: 8),
+                            Icon(Icons.calendar_today_rounded),
+                            SizedBox(width: 8),
                             Text(
                               '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.arrow_forward),
+                        icon: Icon(Icons.arrow_forward),
                         onPressed: () {
                           setState(() {
                             _selectedDate =
-                                _selectedDate.add(const Duration(days: 1));
+                                _selectedDate.add(Duration(days: 1));
                             _fetchDailyTransactions();
                           });
                         },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  const Text('Daftar Transaksi', style: primaryText2),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text('Daftar Transaksi', style: primaryText2),
+                  ),
+                  SizedBox(height: 8),
                   _buildTransactionList(),
                 ],
               ),
@@ -206,71 +202,46 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
   }
 
   Widget _buildTransactionList() {
-    List<Widget> transactionWidgets = [];
-
     if (_dailyTransactions.isEmpty) {
-      transactionWidgets.add(
-        const Center(
-          child: Text('Tidak ada transaksi untuk tanggal ini.'),
-        ),
+      return Center(
+        child: Text('Tidak ada transaksi untuk tanggal ini.'),
       );
     } else {
-      _dailyTransactions.forEach((date, transactions) {
-        // Filter transactions by date
-        if (date == _selectedDate.toString().substring(0, 10)) {
-          transactionWidgets.add(
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text(
-                    date,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                ...transactions.map((transaction) {
-                  // Ensure transaction is not null and has 'transaction' map
-                  if (transaction.containsKey('transaction')) {
-                    String transactionId = transaction['transaction']['id'] ?? ''; // handle null id
-                    bool isIncome = transaction['type'] == 'income';
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: _dailyTransactions.length,
+        itemBuilder: (context, index) {
+          var transaction = _dailyTransactions[index];
+          if (transaction.containsKey('transaction')) {
+            String transactionId = transaction['transaction']['id'] ?? '';
+            bool isIncome = transaction['type'] == 'income';
 
-                    return TransactionCard(
-                      title: transaction['transaction']['title'] ?? '',
-                      date: transaction['transaction']['date'] ?? '',
-                      amount: transaction['transaction']['amount']?.toString() ?? '',
-                      color: transaction['transaction']['color'] ?? Colors.black,
-                      onEdit: () {
-                        _handleEditTransaction(
-                          transactionId,
-                          transaction['transaction'],
-                          isIncome,
-                        );
-                      },
-                      onDelete: () {
-                        _handleDeleteTransaction(
-                          transactionId,
-                          isIncome,
-                        );
-                      },
-                    );
-                  } else {
-                    return SizedBox(); // Return an empty widget if transaction data is invalid
-                  }
-                }).toList(),
-              ],
-            ),
-          );
-        }
-      });
+            return TransactionCard(
+              key: Key(transactionId),
+              title: transaction['transaction']['title'] ?? '',
+              date: transaction['transaction']['date'] ?? '',
+              amount: transaction['transaction']['amount']?.toString() ?? '',
+              color: isIncome ? Colors.green : Colors.red,
+              onEdit: () {
+                _handleEditTransaction(
+                  transactionId,
+                  transaction['transaction'],
+                  isIncome,
+                );
+              },
+              onDelete: () {
+                _handleDeleteTransaction(
+                  transactionId,
+                  isIncome,
+                );
+              },
+            );
+          } else {
+            return SizedBox(); // Return an empty widget if transaction data is invalid
+          }
+        },
+      );
     }
-
-    return SingleChildScrollView(
-      child: Column(
-        children: transactionWidgets,
-      ),
-    );
   }
-
-
 }
