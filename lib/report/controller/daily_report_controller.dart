@@ -49,7 +49,7 @@ class DailyReportController {
         final List<dynamic> expenses = responseData['expenses'] ?? []; // Perbaikan di sini
 
         List<Map<String, dynamic>> incomeList = incomes.map((income) {
-          print('Income ID: ${income['id']}'); // Log ID dari API
+          print('Income ID: ${income['id']}');
           return {
             'id': income['id'],
             'title': income['name'],
@@ -60,9 +60,9 @@ class DailyReportController {
         }).toList();
 
         List<Map<String, dynamic>> expenseList = expenses.map((expense) {
-          print('Expense ID: ${expense['expense_id']}'); // Perbaikan di sini
+          print('Expense ID: ${expense['id']}');
           return {
-            'id': expense['expense_id'], // Perbaikan di sini
+            'id': expense['id'], // Perbaikan di sini
             'title': expense['name'],
             'date': expense['date_time'],
             'amount': double.tryParse(expense['amount'].toString()) ?? 0.0,
@@ -145,7 +145,7 @@ class DailyReportController {
         return false;
       }
 
-      final endpoint = isIncome ? '/incomes/$transactionId' : '/expenses/$transactionId';
+      final endpoint = isIncome ? '/incomes/$transactionId' : '/expanse/$transactionId';
       final response = await dio.delete(
         '$baseUrl$endpoint',
         options: Options(
