@@ -39,15 +39,29 @@ class DetailReportController {
         final parsedData = {
           'year': data['year'] is int ? data['year'] : int.parse(data['year']),
           'month': data['month'] ?? '',
-          'total_income': data['total_income'] is int ? data['total_income'] : int.parse(data['total_income']),
-          'total_expenses': data['total_expenses'] is int ? data['total_expenses'] : int.parse(data['total_expenses']),
-          'remaining_balance': data['remaining_balance'] is int ? data['remaining_balance'] : int.parse(data['remaining_balance']),
-          'transactions': List<Map<String, dynamic>>.from(data['transactions'] ?? []),
+          'total_income': data['total_income'] is int
+              ? data['total_income']
+              : (data['total_income'] is double
+              ? data['total_income'].toInt()
+              : double.parse(data['total_income']).toInt()),
+          'total_expenses': data['total_expenses'] is int
+              ? data['total_expenses']
+              : (data['total_expenses'] is double
+              ? data['total_expenses'].toInt()
+              : double.parse(data['total_expenses']).toInt()),
+          'remaining_balance': data['remaining_balance'] is int
+              ? data['remaining_balance']
+              : (data['remaining_balance'] is double
+              ? data['remaining_balance'].toInt()
+              : double.parse(data['remaining_balance']).toInt()),
+          'transactions': data['transactions'] is List
+              ? List<Map<String, dynamic>>.from(data['transactions'])
+              : [],
         };
 
         return parsedData;
       } else {
-        print('Failed to fetch detail report data');
+        print('Failed to fetch detail report data: ${response.statusCode} ${response.statusMessage}');
         return null;
       }
     } catch (e) {

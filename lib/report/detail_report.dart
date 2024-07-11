@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../auth/controller/login_controller.dart';
 import '../theme/colors.dart';
 import '../theme/text_theme.dart';
 import '../widgets/custom_chart.dart';
@@ -6,17 +8,16 @@ import '../widgets/custom_navbar.dart';
 import '../widgets/custom_total_card.dart';
 import '../widgets/custom_transaction_card.dart';
 import '../widgets/indicator_widget.dart';
-import 'controller/detail_report_controller.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'controller/detail_report_controller.dart'; // Import controller for API call
 
 class DetailReport extends StatefulWidget {
-  final dynamic loginController;
-  final Map<String, dynamic> report;
+  final LoginController loginController;
+  final Map<String, dynamic> report; // Receive report data from MonthlyReportScreen
 
   const DetailReport({
     Key? key,
     required this.loginController,
-    required this.report,
+    required this.report
   }) : super(key: key);
 
   @override
@@ -25,8 +26,8 @@ class DetailReport extends StatefulWidget {
 
 class _DetailReportState extends State<DetailReport> {
   late final DetailReportController _controller;
-  Map<String, dynamic>? _detailReport;
-  bool _isLoading = true;
+  bool _isLoading = false;
+  Map<String, dynamic>? _detailReportData;
 
   @override
   void initState() {
@@ -36,51 +37,44 @@ class _DetailReportState extends State<DetailReport> {
   }
 
   Future<void> _fetchDetailReport() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final detailReport = await _controller.getDetailReport(
-        widget.report['year'],
-        widget.report['month'],
-      );
-      if (mounted) {
-        setState(() {
-          _detailReport = detailReport;
-          _isLoading = false;
-        });
-      }
+      final year = widget.report['year']; // Get year from report data
+      final month = widget.report['month']; // Get month from report data
+
+      final detailReport = await _controller.getDetailReport(year, month);
+
+      setState(() {
+        _detailReportData = detailReport;
+        _isLoading = false;
+      });
     } catch (e) {
-      // Handle error, e.g., show error message to the user
+      print('Error fetching detail report: $e');
       setState(() {
         _isLoading = false;
+        // Handle error, e.g., show error message to the user
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_detailReport == null) {
-      return Scaffold(
-        body: Center(child: Text('Failed to load report data')),
-      );
-    }
-
-    final totalIncome = _detailReport!['total_income'];
-    final totalExpenses = _detailReport!['total_expenses'];
-    final incomePercentage = (totalIncome / (totalIncome + totalExpenses)) * 100;
-    final expensePercentage = (totalExpenses / (totalIncome + totalExpenses)) * 100;
-
     return Scaffold(
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _detailReportData == null
+          ? Center(
+          child: Text(
+              'Failed to fetch detail report. Please try again later.'))
+          : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              decoration: const BoxDecoration(color: Colors.white),
+              decoration: BoxDecoration(color: Colors.white),
               constraints: BoxConstraints.expand(
                 height: MediaQuery.of(context).size.height,
               ),
@@ -97,49 +91,65 @@ class _DetailReportState extends State<DetailReport> {
                   Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.only(
+                        padding: EdgeInsets.only(
                             left: 20, right: 20, top: 60, bottom: 20),
                         child: Column(
                           children: [
                             Text(
-                              '${_detailReport!['month']}, ${_detailReport!['year']}',
+                              '${widget.report['monthName']}, ${widget.report['year']}',
                               style: TextStyle(
                                   color: Colors.white, fontSize: 20),
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                             CircularChart(
-                              incomePercentage: incomePercentage,
-                              expensePercentage: expensePercentage,
+                              incomePercentage: _calculatePercentage(
+                                _detailReportData!['total_income'],
+                                _detailReportData!['total_income'] +
+                                    _detailReportData![
+                                    'total_expenses'],
+                              ),
+                              expensePercentage: _calculatePercentage(
+                                _detailReportData!['total_expenses'],
+                                _detailReportData!['total_income'] +
+                                    _detailReportData![
+                                    'total_expenses'],
+                              ),
+                              remainingBalance: _detailReportData![
+                              'remaining_balance'],
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment:
+                              MainAxisAlignment.center,
                               children: [
                                 IndicatorWidget(
-                                  color: const Color(0XFFA5C6D1),
+                                  color: Color(0XFFA5C6D1),
                                   text: 'Pemasukan',
                                 ),
-                                const SizedBox(width: 16),
+                                SizedBox(width: 16),
                                 IndicatorWidget(
                                   color: Colors.white,
                                   text: 'Pengeluaran',
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceAround,
                               children: [
                                 TotalCard(
                                   title: 'Pemasukan',
-                                  amount: 'Rp. ${totalIncome.toString()}',
+                                  amount:
+                                  'Rp ${_detailReportData!['total_income']}',
                                   icon: Icons.input_rounded,
                                   color: Colors.green,
                                   color2: green2,
                                 ),
                                 TotalCard(
                                   title: 'Pengeluaran',
-                                  amount: 'Rp. ${totalExpenses.toString()}',
+                                  amount:
+                                  'Rp ${_detailReportData!['total_expenses']}',
                                   icon: Icons.output_rounded,
                                   color: Colors.red,
                                   color2: red2,
@@ -152,19 +162,25 @@ class _DetailReportState extends State<DetailReport> {
                     ],
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, top: 470),
+                    padding: EdgeInsets.only(
+                        left: 20, right: 20, top: 470),
                     child: Column(
                       children: [
-                        const Text('Daftar Transaksi', style: primaryText2),
+                        Text('Daftar Transaksi', style: primaryText2),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: (_detailReport!['transactions'] as List).length,
+                            itemCount:
+                            _detailReportData!['transactions']
+                                .length,
                             itemBuilder: (context, index) {
-                              final transaction = (_detailReport!['transactions'] as List)[index];
+                              final transaction =
+                              _detailReportData!['transactions']
+                              [index];
+
                               return TransactionCard(
-                                title: transaction['name'],
-                                date: transaction['date_time'],
-                                amount: transaction['amount'].toString(),
+                                title: transaction['title'],
+                                date: transaction['date'],
+                                amount: transaction['amount'],
                                 color: transaction['type'] == 'income'
                                     ? Colors.green
                                     : Colors.red,
@@ -181,14 +197,20 @@ class _DetailReportState extends State<DetailReport> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomNavbar(loginController: widget.loginController),
+      bottomNavigationBar: CustomNavbar(
+          loginController: widget.loginController), // Pass loginController here
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/add_transaction');
         },
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
+  }
+
+  double _calculatePercentage(int part, int total) {
+    if (total == 0) return 0.0;
+    return (part / total) * 100;
   }
 }

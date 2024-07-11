@@ -1,18 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import intl package
 
-import '../theme/colors.dart';
 
 class CircularChart extends StatelessWidget {
   final double incomePercentage;
   final double expensePercentage;
+  final int remainingBalance; // Change to int type for better formatting
 
   const CircularChart({
     Key? key,
     required this.incomePercentage,
     required this.expensePercentage,
+    required this.remainingBalance,
   }) : super(key: key);
+
+  String _formatNumber(int number) {
+    final formatter = NumberFormat('#,###', 'en_US');
+    return formatter.format(number).replaceAll(',', '.');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +35,18 @@ class CircularChart extends StatelessWidget {
                   color: Color(0XFFA5C6D1),
                   value: incomePercentage,
                   title: '${incomePercentage.toStringAsFixed(0)}%',
-                  radius: 50,
+                  radius: 4,
                   titleStyle: TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 PieChartSectionData(
                   color: Colors.white,
                   value: expensePercentage,
                   title: '${expensePercentage.toStringAsFixed(0)}%',
-                  radius: 50,
+                  radius: 2,
                   titleStyle: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ],
-              centerSpaceRadius: 40,
+              centerSpaceRadius: 80,
             ),
           ),
           Center(
@@ -51,7 +58,7 @@ class CircularChart extends StatelessWidget {
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 Text(
-                  '6.000.000', // This value should be dynamic based on data
+                  _formatNumber(remainingBalance),
                   style: TextStyle(color: Colors.white, fontSize: 24),
                 ),
               ],
