@@ -7,15 +7,15 @@ import 'package:intl/intl.dart';
 class DailyReportController {
   final String userId;
   final FlutterSecureStorage secureStorage;
+  final Dio dio;
 
-  DailyReportController(this.userId, this.secureStorage, Dio dio);
+  DailyReportController(this.userId, this.secureStorage, this.dio);
 
   Future<String?> _getToken() async {
     return await secureStorage.read(key: 'access_token');
   }
 
   Future<Map<String, dynamic>?> getDailyTransactions(DateTime date) async {
-    final dio = Dio();
     final url = '$baseUrl/daily-report/transaction-by-day';
 
     // Format the date to 'Y-m-d' as expected by the backend
@@ -92,10 +92,7 @@ class DailyReportController {
   }
 
   Future<Map<String, double>?> getTotalIncomesAndExpenses() async {
-    final dio = Dio();
     final url = '$baseUrl/daily-report/totals-incomes-expanse';
-
-    print('Fetching total incomes and expenses from: $url');
 
     try {
       final token = await _getToken();
@@ -103,7 +100,6 @@ class DailyReportController {
         print('Error: No token found');
         return null;
       }
-      print('Token: $token');
 
       final response = await dio.get(
         url,
@@ -118,23 +114,17 @@ class DailyReportController {
         ),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response data: ${response.data}');
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = response.data as Map<String, dynamic>;
-        print('Response Data: $responseData');
+        print('Response Data: $responseData');  // Log the response data
 
-        double totalIncome = double.tryParse(responseData['total_income'].toString()) ?? 0.0;
-        double totalExpense = double.tryParse(responseData['total_expense'].toString()) ?? 0.0;
+        double totalIncome = double.tryParse(responseData['data']['total_income'].toString()) ?? 0.0;
+        double totalExpense = double.tryParse(responseData['data']['total_expanse'].toString()) ?? 0.0;
 
-        Map<String, double> totals = {
+        return {
           'income': totalIncome,
           'expense': totalExpense,
         };
-
-        print('Parsed Totals: $totals');
-        return totals;
       } else {
         print('Failed to fetch data. Status code: ${response.statusCode}');
         return null;
@@ -145,76 +135,44 @@ class DailyReportController {
     }
   }
 
-  Future<bool> editTransaction(String transactionId, Map<String, dynamic> updatedTransaction, bool isIncome) async {
-    final dio = Dio();
-    final url = isIncome
-        ? '$baseUrl/incomes/$transactionId'
-        : '$baseUrl/expanse/$transactionId';
-
+  Future<bool> deleteTransaction(int transactionId, bool isIncome) async {
     try {
-      final token = await _getToken();
+      final token = await _getToken(); // Metode untuk mendapatkan token akses
+
       if (token == null) {
-        print('Error: No token found');
-        return false;
+        throw Exception('Token akses tidak ditemukan.');
       }
 
-      final response = await dio.put(
-        url,
-        data: updatedTransaction,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        print('Transaction updated successfully');
-        return true;
-      } else {
-        print('Failed to update transaction. Status code: ${response.statusCode}');
-        return false;
-      }
-    } catch (e) {
-      print('Error editing transaction: $e');
-      return false;
-    }
-  }
-
-  Future<bool> deleteTransaction(String transactionId, bool isIncome) async {
-    final dio = Dio();
-    final url = isIncome
-        ? '$baseUrl/incomes/$transactionId'
-        : '$baseUrl/expanse/$transactionId';
-
-    try {
-      final token = await _getToken();
-      if (token == null) {
-        print('Error: No token found');
-        return false;
-      }
-
+      final endpoint = isIncome ? '/incomes/$transactionId' : '/expenses/$transactionId';
       final response = await dio.delete(
-        url,
+        '$baseUrl$endpoint',
         options: Options(
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer $token',
           },
         ),
       );
 
       if (response.statusCode == 200) {
-        print('Transaction deleted successfully');
         return true;
       } else {
-        print('Failed to delete transaction. Status code: ${response.statusCode}');
+        print('Gagal4: ${response.statusCode}');
         return false;
       }
+    } on DioError catch (e) {
+      if (e.response?.statusCode == 404) {
+        print('Transaksi tidak ditemukan');
+        throw Exception('Transaksi tidak ditemukan.');
+      } else {
+        print('Error Dio: $e');
+        throw Exception('Gagal5.');
+      }
     } catch (e) {
-      print('Error deleting transaction: $e');
-      return false;
+      print('Error menghapus transaksi: $e');
+      throw Exception('Gagal6');
     }
   }
+
+
+
 }
