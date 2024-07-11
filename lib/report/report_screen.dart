@@ -112,9 +112,10 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: _selectedIndex == 0
-                    ? DailyReportScreen(userId: user!.userId.toString())
-                    : MonthlyReportScreen(userId: user!.userId.toString()), // Pass the user object here
+                child: DailyReportScreen(userId: user!.userId.toString()),
+                // child: _selectedIndex == 0
+                //     ? DailyReportScreen(userId: user!.userId.toString())
+                //     : MonthlyReportScreen(userId: user!.userId.toString()), // Pass the user object here
               ),
             ],
           ),

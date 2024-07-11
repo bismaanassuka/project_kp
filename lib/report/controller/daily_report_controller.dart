@@ -17,12 +17,7 @@ class DailyReportController {
 
   Future<Map<String, dynamic>?> getDailyTransactions(DateTime date) async {
     final url = '$baseUrl/daily-report/transaction-by-day';
-
-    // Format the date to 'Y-m-d' as expected by the backend
     final formattedDate = DateFormat('yyyy-MM-dd').format(date);
-
-    print('Fetching daily transactions from: $url');
-    print('Date: $formattedDate');
 
     try {
       final token = await _getToken();
@@ -30,13 +25,12 @@ class DailyReportController {
         print('Error: No token found');
         return null;
       }
-      print('Token: $token');
 
       final response = await dio.get(
         url,
         queryParameters: {
           'user_id': userId,
-          'date_time': formattedDate,  // Ensure the parameter name matches the backend expectation
+          'date_time': formattedDate,
         },
         options: Options(
           headers: {
@@ -46,18 +40,18 @@ class DailyReportController {
         ),
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response data: ${response.data}');
+      print('API Response: ${response.data}'); // Log lengkap respons API
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = response.data as Map<String, dynamic>;
-        print('Response Data: $responseData');
 
         final List<dynamic> incomes = responseData['incomes'] ?? [];
-        final List<dynamic> expenses = responseData['expenses'] ?? [];
+        final List<dynamic> expenses = responseData['expenses'] ?? []; // Perbaikan di sini
 
         List<Map<String, dynamic>> incomeList = incomes.map((income) {
+          print('Income ID: ${income['id']}'); // Log ID dari API
           return {
+            'id': income['id'],
             'title': income['name'],
             'date': income['date_time'],
             'amount': double.tryParse(income['amount'].toString()) ?? 0.0,
@@ -66,7 +60,9 @@ class DailyReportController {
         }).toList();
 
         List<Map<String, dynamic>> expenseList = expenses.map((expense) {
+          print('Expense ID: ${expense['expense_id']}'); // Perbaikan di sini
           return {
+            'id': expense['expense_id'], // Perbaikan di sini
             'title': expense['name'],
             'date': expense['date_time'],
             'amount': double.tryParse(expense['amount'].toString()) ?? 0.0,
@@ -90,6 +86,11 @@ class DailyReportController {
       return null;
     }
   }
+
+
+
+
+
 
   Future<Map<String, double>?> getTotalIncomesAndExpenses() async {
     final url = '$baseUrl/daily-report/totals-incomes-expanse';
@@ -140,7 +141,8 @@ class DailyReportController {
       final token = await _getToken(); // Metode untuk mendapatkan token akses
 
       if (token == null) {
-        throw Exception('Token akses tidak ditemukan.');
+        print('Token akses tidak ditemukan.');
+        return false;
       }
 
       final endpoint = isIncome ? '/incomes/$transactionId' : '/expenses/$transactionId';
@@ -156,22 +158,23 @@ class DailyReportController {
       if (response.statusCode == 200) {
         return true;
       } else {
-        print('Gagal4: ${response.statusCode}');
+        print('Gagal menghapus transaksi. Status kode: ${response.statusCode}');
         return false;
       }
     } on DioError catch (e) {
       if (e.response?.statusCode == 404) {
-        print('Transaksi tidak ditemukan');
-        throw Exception('Transaksi tidak ditemukan.');
+        print('Transaksi tidak ditemukan.');
+        return false;
       } else {
         print('Error Dio: $e');
-        throw Exception('Gagal5.');
+        return false;
       }
     } catch (e) {
       print('Error menghapus transaksi: $e');
-      throw Exception('Gagal6');
+      return false;
     }
   }
+
 
 
 

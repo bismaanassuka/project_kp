@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
-//import '../controller/daily_report_controller.dart';
+import 'package:intl/intl.dart';
 import '../widgets/custom_total_card.dart';
 import '../widgets/custom_transaction_card.dart';
 import '../theme/colors.dart';
@@ -40,8 +39,11 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
         _isLoading = true;
       });
 
-      final transactions =
-      await _controller.getDailyTransactions(_selectedDate);
+      final transactions = await _controller.getDailyTransactions(_selectedDate);
+
+      // Log untuk memastikan data yang diterima dari API
+      print('API Response: $transactions');
+
       setState(() {
         _dailyTransactions = _groupTransactionsByDate(transactions ?? {});
         _isLoading = false;
@@ -49,8 +51,8 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
     }
   }
 
-  List<Map<String, dynamic>> _groupTransactionsByDate(
-      Map<String, dynamic>? transactions) {
+
+  List<Map<String, dynamic>> _groupTransactionsByDate(Map<String, dynamic>? transactions) {
     List<Map<String, dynamic>> groupedTransactions = [];
     if (transactions == null) return groupedTransactions;
 
@@ -61,17 +63,17 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
 
     for (var transaction in incomeTransactions) {
       String date = transaction['date'].substring(0, 10); // YYYY-MM-DD
+      print('Income Transaction: $transaction'); // Log data transaksi income
       if (date == _selectedDate.toString().substring(0, 10)) {
-        groupedTransactions
-            .add({'type': 'income', 'transaction': transaction});
+        groupedTransactions.add({'type': 'income', 'transaction': transaction});
       }
     }
 
     for (var transaction in expenseTransactions) {
       String date = transaction['date'].substring(0, 10); // YYYY-MM-DD
+      print('Expense Transaction: $transaction'); // Log data transaksi expense
       if (date == _selectedDate.toString().substring(0, 10)) {
-        groupedTransactions
-            .add({'type': 'expense', 'transaction': transaction});
+        groupedTransactions.add({'type': 'expense', 'transaction': transaction});
       }
     }
 
@@ -101,14 +103,22 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
   }
 
   void _handleDeleteTransaction(int transactionId, bool isIncome) async {
+    print('Attempting to delete transaction with ID: $transactionId (Type: ${isIncome ? "Income" : "Expense"})');
     bool success = await _controller.deleteTransaction(transactionId, isIncome);
     if (success) {
-      _fetchDailyTransactions();
+      setState(() {
+        _dailyTransactions.removeWhere((transaction) =>
+        transaction['transaction']['id'] == transactionId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Transaksi berhasil dihapus.')),
+      );
     } else {
-      // Handle failure
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus transaksi.')),
+      );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -206,31 +216,33 @@ class _DailyReportScreenState extends State<DailyReportScreen> {
         itemCount: _dailyTransactions.length,
         itemBuilder: (context, index) {
           var transaction = _dailyTransactions[index];
-          print('Transaction data: $transaction'); // Add this line
+          print('Transaction data: $transaction'); // Log data transaksi
 
           if (transaction.containsKey('transaction')) {
-            int transactionId = transaction['transaction']['id'] ?? 0;
+            var transactionData = transaction['transaction'];
+            int transactionId = transactionData['id'] ?? 0;
             bool isIncome = transaction['type'] == 'income';
-            print('Transaction ID: $transactionId, Is Income: $isIncome'); // Add this line
+
+            // Log ID dan jenis transaksi
+            print('Transaction ID: $transactionId, Is Income: $isIncome');
 
             return TransactionCard(
-              key: ValueKey<int>(transactionId),
-              title: transaction['transaction']['title'] ?? '',
-              date: transaction['transaction']['date'] ?? '',
-              amount: transaction['transaction']['amount']?.toString() ?? '',
+              id: transactionId, // Correctly pass the transactionId
+              key: ValueKey<int>(transactionId), // Assign the correct key
+              title: transactionData['title'] ?? '',
+              date: transactionData['date']?.substring(0, 10) ?? '', // Use substring for YYYY-MM-DD
+              amount: transactionData['amount']?.toString() ?? '',
               color: isIncome ? Colors.green : Colors.red,
               onDelete: () {
                 _handleDeleteTransaction(transactionId, isIncome);
               },
             );
           } else {
-            return SizedBox(); // Return an empty widget if transaction data is invalid
+            return SizedBox();
           }
         },
       );
     }
   }
 
-
 }
-

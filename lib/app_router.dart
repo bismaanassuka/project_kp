@@ -31,17 +31,17 @@ class AppRouter {
           return MaterialPageRoute(builder: (_) => ReportScreen(loginController: args));
         }
         return _errorRoute();
-      case '/detail_report':
-        if (args is Map<String, dynamic>) {
-          final loginController = args['loginController'] as LoginController?;
-          final report = args['report'] as Map<String, dynamic>?;
-          if (loginController != null && report != null) {
-            return MaterialPageRoute(builder: (_) => DetailReport(loginController: loginController, report: report));
-          }
-        }
-        return _errorRoute();
-      default:
-        return _errorRoute();
+      // case '/detail_report':
+      //   if (args is Map<String, dynamic>) {
+      //     final loginController = args['loginController'] as LoginController?;
+      //     final report = args['report'] as Map<String, dynamic>?;
+      //     if (loginController != null && report != null) {
+      //       return MaterialPageRoute(builder: (_) => DetailReport(loginController: loginController, report: report));
+      //     }
+      //   }
+      //   return _errorRoute();
+      // default:
+      //   return _errorRoute();
     }
   }
 
