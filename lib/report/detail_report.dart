@@ -6,6 +6,8 @@ import '../widgets/custom_navbar.dart';
 import '../widgets/custom_total_card.dart';
 import '../widgets/custom_transaction_card.dart';
 import '../widgets/indicator_widget.dart';
+import 'controller/detail_report_controller.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class DetailReport extends StatefulWidget {
   final dynamic loginController;
@@ -22,9 +24,56 @@ class DetailReport extends StatefulWidget {
 }
 
 class _DetailReportState extends State<DetailReport> {
+  late final DetailReportController _controller;
+  Map<String, dynamic>? _detailReport;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = DetailReportController(const FlutterSecureStorage());
+    _fetchDetailReport();
+  }
+
+  Future<void> _fetchDetailReport() async {
+    try {
+      final detailReport = await _controller.getDetailReport(
+        widget.report['year'],
+        widget.report['month'],
+      );
+      if (mounted) {
+        setState(() {
+          _detailReport = detailReport;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // Handle error, e.g., show error message to the user
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final report = widget.report;
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_detailReport == null) {
+      return Scaffold(
+        body: Center(child: Text('Failed to load report data')),
+      );
+    }
+
+    final totalIncome = _detailReport!['total_income'];
+    final totalExpenses = _detailReport!['total_expenses'];
+    final incomePercentage = (totalIncome / (totalIncome + totalExpenses)) * 100;
+    final expensePercentage = (totalExpenses / (totalIncome + totalExpenses)) * 100;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -53,12 +102,15 @@ class _DetailReportState extends State<DetailReport> {
                         child: Column(
                           children: [
                             Text(
-                              '${report['month']}, ${report['year']}',
+                              '${_detailReport!['month']}, ${_detailReport!['year']}',
                               style: TextStyle(
                                   color: Colors.white, fontSize: 20),
                             ),
                             const SizedBox(height: 16),
-                            CircularChart(),
+                            CircularChart(
+                              incomePercentage: incomePercentage,
+                              expensePercentage: expensePercentage,
+                            ),
                             const SizedBox(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -80,14 +132,14 @@ class _DetailReportState extends State<DetailReport> {
                               children: [
                                 TotalCard(
                                   title: 'Pemasukan',
-                                  amount: 'Rp. ${report['total_income'].toString()}',
+                                  amount: 'Rp. ${totalIncome.toString()}',
                                   icon: Icons.input_rounded,
                                   color: Colors.green,
                                   color2: green2,
                                 ),
                                 TotalCard(
                                   title: 'Pengeluaran',
-                                  amount: 'Rp. ${report['total_expenses'].toString()}',
+                                  amount: 'Rp. ${totalExpenses.toString()}',
                                   icon: Icons.output_rounded,
                                   color: Colors.red,
                                   color2: red2,
@@ -106,13 +158,13 @@ class _DetailReportState extends State<DetailReport> {
                         const Text('Daftar Transaksi', style: primaryText2),
                         Expanded(
                           child: ListView.builder(
-                            itemCount: (report['transactions'] as List).length,
+                            itemCount: (_detailReport!['transactions'] as List).length,
                             itemBuilder: (context, index) {
-                              final transaction = (report['transactions'] as List)[index];
+                              final transaction = (_detailReport!['transactions'] as List)[index];
                               return TransactionCard(
                                 title: transaction['name'],
                                 date: transaction['date_time'],
-                                amount: transaction['amount'],
+                                amount: transaction['amount'].toString(),
                                 color: transaction['type'] == 'income'
                                     ? Colors.green
                                     : Colors.red,

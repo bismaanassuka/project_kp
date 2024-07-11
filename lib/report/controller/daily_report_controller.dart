@@ -1,3 +1,4 @@
+import 'package:Webcare/config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -15,7 +16,7 @@ class DailyReportController {
 
   Future<Map<String, dynamic>?> getDailyTransactions(DateTime date) async {
     final dio = Dio();
-    final url = 'https://871f-114-5-102-104.ngrok-free.app/api/daily-report/transaction-by-day';
+    final url = '$baseUrl/daily-report/transaction-by-day';
 
     // Format the date to 'Y-m-d' as expected by the backend
     final formattedDate = DateFormat('yyyy-MM-dd').format(date);
@@ -92,7 +93,7 @@ class DailyReportController {
 
   Future<Map<String, double>?> getTotalIncomesAndExpenses() async {
     final dio = Dio();
-    final url = 'https://871f-114-5-102-104.ngrok-free.app/api/daily-report/totals-incomes-expanse';
+    final url = '$baseUrl/daily-report/totals-incomes-expanse';
 
     print('Fetching total incomes and expenses from: $url');
 
@@ -147,8 +148,8 @@ class DailyReportController {
   Future<bool> editTransaction(String transactionId, Map<String, dynamic> updatedTransaction, bool isIncome) async {
     final dio = Dio();
     final url = isIncome
-        ? 'https://871f-114-5-102-104.ngrok-free.app/api/incomes/$transactionId'
-        : 'https://871f-114-5-102-104.ngrok-free.app/api/expanse/$transactionId';
+        ? '$baseUrl/incomes/$transactionId'
+        : '$baseUrl/expanse/$transactionId';
 
     try {
       final token = await _getToken();
@@ -184,8 +185,8 @@ class DailyReportController {
   Future<bool> deleteTransaction(String transactionId, bool isIncome) async {
     final dio = Dio();
     final url = isIncome
-        ? 'https://871f-114-5-102-104.ngrok-free.app/api/incomes/$transactionId'
-        : 'https://871f-114-5-102-104.ngrok-free.app/api/expanse/$transactionId';
+        ? '$baseUrl/incomes/$transactionId'
+        : '$baseUrl/expanse/$transactionId';
 
     try {
       final token = await _getToken();

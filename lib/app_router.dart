@@ -1,13 +1,12 @@
-import 'package:Webcare/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'auth/controller/login_controller.dart';
 import 'auth/login_screen.dart';
 import 'auth/profile_screen.dart';
 import 'auth/register_screen.dart';
-import 'model/user_model.dart';
 import 'report/detail_report.dart';
 import 'report/report_screen.dart';
 import 'transaction/add_transaction_screen.dart';
+import 'splash_screen.dart';
 
 class AppRouter {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
@@ -34,12 +33,11 @@ class AppRouter {
         return _errorRoute();
       case '/detail_report':
         if (args is Map<String, dynamic>) {
-          return MaterialPageRoute(
-            builder: (_) => DetailReport(
-              loginController: args['loginController'],
-              report: args['report'],
-            ),
-          );
+          final loginController = args['loginController'] as LoginController?;
+          final report = args['report'] as Map<String, dynamic>?;
+          if (loginController != null && report != null) {
+            return MaterialPageRoute(builder: (_) => DetailReport(loginController: loginController, report: report));
+          }
         }
         return _errorRoute();
       default:

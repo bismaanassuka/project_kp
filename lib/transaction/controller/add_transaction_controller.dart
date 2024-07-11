@@ -1,3 +1,4 @@
+import 'package:Webcare/config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -14,8 +15,8 @@ class AddTransactionController {
   Future<bool> addTransaction(bool isIncome, String title, String amount, String description, DateTime date) async {
     final dio = Dio();
     final url = isIncome
-        ? 'https://871f-114-5-102-104.ngrok-free.app/api/incomes'
-        : 'https://871f-114-5-102-104.ngrok-free.app/api/expanse';
+        ? '$baseUrl/incomes'
+        : '$baseUrl/expanse';
 
     print('Attempting to post to: $url');
     print('Data: {user_id: $userId, name: $title, amount: $amount, date_time: ${date.toIso8601String()}, description: $description}');

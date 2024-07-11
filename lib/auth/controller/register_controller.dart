@@ -1,3 +1,4 @@
+import 'package:Webcare/config.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 
@@ -30,7 +31,7 @@ class RegisterController {
       try {
         Dio dio = Dio();
         isLoading = false;
-        var response = await dio.post('http://192.168.43.88:8080/api/register', data: data);
+        var response = await dio.post('$baseUrl/register', data: data);
 
         print(response.data);
         Navigator.pushReplacement(

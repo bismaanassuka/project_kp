@@ -1,3 +1,4 @@
+import 'package:Webcare/config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -12,7 +13,7 @@ class MonthlyReportController {
 
   Future<List<Map<String, dynamic>>?> getMonthlyReport(String userId) async {
     final dio = Dio();
-    final url = 'https://871f-114-5-102-104.ngrok-free.app/api/monthly-report/monthly-report';
+    final url = '$baseUrl/monthly-report/monthly-report';
 
     try {
       final token = await _getToken();

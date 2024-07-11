@@ -138,7 +138,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
                       context,
                       '/detail_report',
                       arguments: {
-                        'userId': widget.userId,
+                        'loginController': LoginController(),
                         'report': report,
                       },
                     );

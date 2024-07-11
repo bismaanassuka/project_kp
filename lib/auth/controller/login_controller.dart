@@ -1,3 +1,4 @@
+import 'package:Webcare/config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -29,7 +30,7 @@ class LoginController {
         isLoading = true;
         Dio dio = Dio();
         var response = await dio.post(
-          'https://871f-114-5-102-104.ngrok-free.app/api/login',
+          '$baseUrl/login',
           data: data,
         );
 
