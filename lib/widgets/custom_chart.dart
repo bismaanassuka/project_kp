@@ -7,11 +7,13 @@ import '../theme/colors.dart';
 class CircularChart extends StatelessWidget {
   final double incomePercentage;
   final double expensePercentage;
+  final double remainingBalance; // Change to int type for better formatting
 
   const CircularChart({
     Key? key,
     required this.incomePercentage,
     required this.expensePercentage,
+    required this.remainingBalance,
   }) : super(key: key);
 
   @override
@@ -26,6 +28,7 @@ class CircularChart extends StatelessWidget {
               sections: [
                 PieChartSectionData(
                   color: Color(0XFFA5C6D1),
+                  // color: Colors.green,
                   value: incomePercentage,
                   title: '${incomePercentage.toStringAsFixed(0)}%',
                   radius: 50,
@@ -33,6 +36,7 @@ class CircularChart extends StatelessWidget {
                 ),
                 PieChartSectionData(
                   color: Colors.white,
+                  // color: Colors.red,
                   value: expensePercentage,
                   title: '${expensePercentage.toStringAsFixed(0)}%',
                   radius: 50,
@@ -51,7 +55,8 @@ class CircularChart extends StatelessWidget {
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
                 Text(
-                  '6.000.000', // This value should be dynamic based on data
+                  remainingBalance.toString(),
+                  //ASTAGHFIRULAAHHH ANA :'v '6.000.000', // This value should be dynamic based on data
                   style: TextStyle(color: Colors.white, fontSize: 24),
                 ),
               ],

@@ -1,3 +1,4 @@
+import 'package:Webcare/widgets/custom_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../auth/controller/login_controller.dart';
@@ -12,9 +13,12 @@ import 'controller/detail_report_controller.dart'; // Import controller for API 
 
 class DetailReport extends StatefulWidget {
   final LoginController loginController;
-  final Map<String, dynamic> report; // Receive report data from MonthlyReportScreen
+  final Map<String, dynamic>
+      report; // Receive report data from MonthlyReportScreen
 
-  const DetailReport({Key? key, required this.loginController, required this.report}) : super(key: key);
+  const DetailReport(
+      {Key? key, required this.loginController, required this.report})
+      : super(key: key);
 
   @override
   _DetailReportState createState() => _DetailReportState();
@@ -65,108 +69,150 @@ class _DetailReportState extends State<DetailReport> {
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _detailReportData == null
-          ? Center(child: Text('Failed to fetch detail report'))
-          : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: BoxDecoration(color: Colors.white),
-              constraints: BoxConstraints.expand(
-                height: MediaQuery.of(context).size.height,
-              ),
-              child: Stack(
-                children: <Widget>[
-                  FractionallySizedBox(
-                    widthFactor: 1.0,
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      'assets/images/bg_report2.png',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Column(
+              ? Center(child: Text('Failed to fetch detail report'))
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: EdgeInsets.only(left: 20, right: 20, top: 60, bottom: 20),
-                        child: Column(
-                          children: [
-                            Text(
-                              '${widget.report['monthName']}, ${widget.report['year']}',
-                              style: TextStyle(color: Colors.white, fontSize: 20),
+                        decoration: BoxDecoration(color: Colors.white),
+                        constraints: BoxConstraints.expand(
+                          height: MediaQuery.of(context).size.height,
+                        ),
+                        child: Stack(
+                          children: <Widget>[
+                            FractionallySizedBox(
+                              widthFactor: 1.0,
+                              alignment: Alignment.center,
+                              child: Image.asset(
+                                'assets/images/bg_report2.png',
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            SizedBox(height: 16),
-                            SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Column(
                               children: [
-                                IndicatorWidget(
-                                  color: Color(0XFFA5C6D1),
-                                  text: 'Pemasukan',
-                                ),
-                                SizedBox(width: 16),
-                                IndicatorWidget(
-                                  color: Colors.white,
-                                  text: 'Pengeluaran',
+                                Container(
+                                  padding: EdgeInsets.only(
+                                      left: 20, right: 20, top: 20, bottom: 20),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '${widget.report['monthName']}, ${widget.report['year']}',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      ),
+                                      SizedBox(height: 32),
+                                      CircularChart(
+                                        incomePercentage: _calculatePercentage(
+                                          _detailReportData!['total_income'],
+                                          _detailReportData!['total_income'] +
+                                              _detailReportData![
+                                                  'total_expenses'],
+                                        ),
+                                        expensePercentage: _calculatePercentage(
+                                          _detailReportData!['total_expenses'],
+                                          _detailReportData!['total_income'] +
+                                              _detailReportData![
+                                                  'total_expenses'],
+                                        ),
+                                        remainingBalance: _detailReportData![
+                                            'remaining_balance'],
+                                      ),
+                                      SizedBox(height: 32),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          IndicatorWidget(
+                                            color: Color(0XFFA5C6D1),
+                                            text: 'Pemasukan',
+                                          ),
+                                          SizedBox(width: 16),
+                                          IndicatorWidget(
+                                            color: Colors.white,
+                                            text: 'Pengeluaran',
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 10),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          TotalCard(
+                                            title: 'Pemasukan',
+                                            amount:
+                                                'Rp ${_detailReportData!['total_income']}',
+                                            icon: Icons.input_rounded,
+                                            color: Colors.green,
+                                            color2: green2,
+                                          ),
+                                          TotalCard(
+                                            title: 'Pengeluaran',
+                                            amount:
+                                                'Rp ${_detailReportData!['total_expenses']}',
+                                            icon: Icons.output_rounded,
+                                            color: Colors.red,
+                                            color2: red2,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                TotalCard(
-                                  title: 'Pemasukan',
-                                  amount: 'Rp ${_detailReportData!['total_income']}',
-                                  icon: Icons.input_rounded,
-                                  color: Colors.green,
-                                  color2: green2,
-                                ),
-                                TotalCard(
-                                  title: 'Pengeluaran',
-                                  amount: 'Rp ${_detailReportData!['total_expenses']}',
-                                  icon: Icons.output_rounded,
-                                  color: Colors.red,
-                                  color2: red2,
-                                ),
-                              ],
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 20, right: 20, top: 470),
+                              child: Column(
+                                children: [
+                                  Text('Daftar Transaksi', style: primaryText2),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      itemCount:
+                                          _detailReportData?['transactions']
+                                                  .length ??
+                                              0,
+                                      itemBuilder: (context, index) {
+                                        dynamic transaction;
+                                        if (_detailReportData?['transactions']
+                                            is Map) {
+                                          transaction =
+                                              _detailReportData?['transactions']
+                                                  [index.toString()];
+                                        } else {
+                                          transaction =
+                                              _detailReportData?['transactions']
+                                                  [index];
+                                        }
+                                        return TransactionCard(
+                                          title: transaction['name'] ??
+                                              "null title",
+                                          date: transaction['date_time'] ??
+                                              "null date",
+                                          amount: (transaction['amount'] ?? "-")
+                                              .toString(),
+                                          color: transaction['type'] == 'income'
+                                              ? Colors.green
+                                              : Colors.red,
+                                          id: transaction[
+                                              'id'], // Ensure id is passed correctly
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 20, right: 20, top: 470),
-                    child: Column(
-                      children: [
-                        Text('Daftar Transaksi', style: primaryText2),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: _detailReportData!['transactions'].length,
-                            itemBuilder: (context, index) {
-                              final transaction = _detailReportData!['transactions'][index];
-
-                              return TransactionCard(
-                                title: transaction['title'],
-                                date: transaction['date'],
-                                amount: transaction['amount'],
-                                color: transaction['type'] == 'income' ? Colors.green : Colors.red,
-                                id: transaction['id'], // Ensure id is passed correctly
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: CustomNavbar(loginController: widget.loginController), // Pass loginController here
+                ),
+      bottomNavigationBar: CustomNavbar(
+          loginController: widget.loginController), // Pass loginController here
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushNamed(context, '/add_transaction');
@@ -175,5 +221,14 @@ class _DetailReportState extends State<DetailReport> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
+  }
+
+  // double _calculatePercentage(int part, int total) {
+  //   if (total == 0) return 0.0;
+  //   return (part / total) * 100;
+  // }
+  double _calculatePercentage(double part, double total) {
+    if (total == 0) return 0.0;
+    return (part / total) * 100;
   }
 }

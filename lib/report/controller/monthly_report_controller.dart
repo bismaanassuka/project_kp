@@ -1,6 +1,7 @@
 import 'package:Webcare/config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:logger/logger.dart';
 
 class MonthlyReportController {
   final FlutterSecureStorage secureStorage;
@@ -33,12 +34,12 @@ class MonthlyReportController {
       );
 
       print('Response status: ${response.statusCode}');
-      print('Response data: ${response.data}');
+      print('Response monthly rprt data: \n\n\n ${response.data}');
 
       if (response.statusCode == 200) {
         final List<dynamic> responseData = response.data['data'];
         print('Response Data: $responseData');
-
+        Logger().i(responseData);
         // Convert the list of dynamic objects to a list of maps
         return responseData.cast<Map<String, dynamic>>();
       } else {

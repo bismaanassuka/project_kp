@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:logger/logger.dart';
 import '../../config.dart'; // Pastikan Anda mengganti import ini sesuai dengan lokasi file config.dart Anda
 
 class DetailReportController {
@@ -35,26 +36,35 @@ class DetailReportController {
           },
         ),
       );
-
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data;
+        Logger().i(data);
+        print(data);
 
-        final parsedData = {
-          'year': data['year'],
-          'month': data['month'],
-          'total_income': double.parse(data['total_income']),
-          'total_expenses': double.parse(data['total_expenses']),
-          'remaining_balance': double.parse(data['remaining_balance']),
-          'transactions': data['transactions'],
-        };
+        // final parsedData = {
+        //   'year': data['year'],
+        //   'month': data['month'],
+        //   'total_income': double.tryParse(data['total_income'].toString()),
+        //   'total_expenses': double.tryParse(data['total_expenses']).toString(),
+        //   'remaining_balance':
+        //       double.tryParse(data['remaining_balance'].toString()),
+        //   'transactions': data['transactions'],
+        // };
 
-        return parsedData;
+        // return parsedData;
+        data["total_income"] = double.tryParse(data['total_income'].toString());
+        data["total_expenses"] =
+            double.tryParse(data['total_expenses'].toString());
+        data["remaining_balance"] =
+            double.tryParse(data['remaining_balance'].toString());
+        return data;
       } else {
-        print('Failed to fetch detail report data, status code: ${response.statusCode}');
+        print(
+            'Failed to fetch detail report data, status code: ${response.statusCode}');
         throw Exception('Failed to fetch detail report data');
       }
     } catch (e) {
-      print('Error: $e');
+      Logger().e(e);
       throw Exception('Failed to fetch detail report data');
     }
   }
